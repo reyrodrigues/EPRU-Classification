@@ -4,13 +4,14 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css"/>
     <style>
         #map {
             width: 100%;
             height: 100%;
-            margin: 0 0 0 0;
             position: absolute;
+            margin: 0 0 0 0;
             top: 0;
             left: 0;
         }
@@ -46,15 +47,27 @@
 
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
     <script type="text/javascript" src="//stamen-maps.a.ssl.fastly.net/js/tile.stamen.js"></script>
-    <script type="text/javascript" src="{%static 'assets/countries.geo.js' %}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.1.6/zepto.js"></script>
     <script>
         function initialize() {
             var layer = new L.StamenTileLayer("toner");
             window.map = new L.Map("map", {
+                center: new L.LatLng(0, 0),
                 zoom: 2
             });
             map.addLayer(layer);
+
+            var popup = L.popup();
+
+            function onMapClick(e) {
+                if (e.layer.feature) {
+                    popup
+                            .setLatLng(e.latlng)
+                            .setContent(e.layer.feature.properties.name)
+                            .openOn(map);
+                }
+
+            }
 
 
             $.getJSON('/scale', function (data) {
@@ -63,26 +76,38 @@
                     onEachFeature: onEachFeature
                 });
                 world.addTo(map);
-                map.fitBounds(world);
+                world.on('click', onMapClick);
+
             });
         }
+
         function getColor(d) {
-            return d == 4 ? '#800026' :
+            return  d == 5 ? '#800026' :
+                            d == 4 ? '#800026' :
                             d == 3 ? '#E31A1C' :
                             d == 2 ? '#FD8D3C' :
-                            d == 1 ? '#FED976' :
+                            d == 1 ? '#e3e3e3' :
                     '#c3c3c3';
         }
+
         function style(feature) {
+            var countryData = feature.properties.countryData;
+            var value = 0;
+
+            if (countryData) {
+                value = countryData.IRCR;
+            }
+
             return {
-                fillColor: getColor(feature.properties.FactorGP),
+                fillColor: getColor(value),
                 weight: 2,
                 opacity: 1,
                 color: 'white',
                 dashArray: '3',
-                fillOpacity: 0.7
+                fillOpacity: value == 5 ? 1 : .7
             };
         }
+
         function highlightFeature(e) {
             var layer = e.target;
 
@@ -90,7 +115,7 @@
                 weight: 5,
                 color: '#666',
                 dashArray: '',
-                fillOpacity: 0.7
+                fillOpacity: 0.5
             });
 
             if (!L.Browser.ie && !L.Browser.opera) {
@@ -101,20 +126,22 @@
             world.resetStyle(e.target);
         }
 
-
         function onEachFeature(feature, layer) {
             layer.on({
                 mouseover: highlightFeature,
                 mouseout: resetHighlight
             });
         }
+
         window.onload = function () {
             initialize();
         }
-
     </script>
 </head>
 <body>
+
 <div id="map"></div>
+
+
 </body>
 </html>
