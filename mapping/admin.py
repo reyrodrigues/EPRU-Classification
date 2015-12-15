@@ -157,6 +157,11 @@ class WorksheetAdmin(admin.ModelAdmin):
             scorecard = models.Scorecard.objects.create_from_worksheet(obj)
 
             return HttpResponseRedirect(scorecard.get_admin_url())
+        if '_openscorecard' in request.POST:
+            obj = models.Worksheet.objects.get(id=object_id)
+            scorecard = list(obj.scorecards.all())[-1]
+
+            return HttpResponseRedirect(scorecard.get_admin_url())
         if '_update' in request.POST:
             obj = models.Worksheet.objects.get(id=object_id)
             obj.is_locked = False
