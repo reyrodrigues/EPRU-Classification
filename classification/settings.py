@@ -132,3 +132,6 @@ import dj_database_url
 DJ_URL = dj_database_url.config()
 if 'ENGINE' in DJ_URL:
     DATABASES['default'] = DJ_URL
+
+
+LOOKUP_TABLES_URL = 'https://rescue.box.com/shared/static/kdfeb3xzkk056u02d1p6wewch6tt5bi4.xlsx'

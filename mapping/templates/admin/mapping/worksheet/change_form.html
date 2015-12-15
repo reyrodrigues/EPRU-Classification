@@ -12,9 +12,15 @@
                                                  class="deletelink">{% trans "Delete" %}</a></p>
                 {% endif %}
                 {% if perms.mapping.unlock_worksheet and not original.unlocked_by %}
+                    {% if original.scorecards.all %}
+                        <input type="submit" value="{% trans 'Open Scorecard' %}" name="_openscorecard"/>
+                    {% else %}
+                        <input type="submit" value="{% trans 'Create Scorecard' %}" name="_createscorecard"/>
+                    {% endif %}
                     <input type="submit" value="{% trans 'Update' %}" name="_update"/>
                 {% endif %}
-            </div>    {% else %}
+            </div>
+        {% else %}
             {{ block.super }}
         {% endif %}
 
