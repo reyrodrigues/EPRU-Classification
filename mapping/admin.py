@@ -152,6 +152,7 @@ class WorksheetAdmin(admin.ModelAdmin):
         :param obj:
         :return:
         """
+
         if '_createscorecard' in request.POST:
             obj = models.Worksheet.objects.get(id=object_id)
             scorecard = models.Scorecard.objects.create_from_worksheet(obj)

@@ -17,14 +17,28 @@
                     {% else %}
                         <input type="submit" value="{% trans 'Create Scorecard' %}" name="_createscorecard"/>
                     {% endif %}
-                    <input type="submit" value="{% trans 'Update' %}" name="_update"/>
+                    <input type="submit" value="{% trans 'Update' %}" class="default" name="_update"/>
                 {% endif %}
             </div>
-        {% else %}
-            {{ block.super }}
+
+            {% else %}{% load i18n admin_urls %}
+            <div class="submit-row">
+                {% if perms.mapping.save_worksheet %}
+                    <input type="submit" value="{% trans 'Save' %}" class="default" name="_continue"/>{% endif %}
+                {% if perms.mapping.delete_worksheet %}
+                    {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+                    <p class="deletelink-box"><a href="{% add_preserved_filters delete_url %}"
+                                                 class="deletelink">{% trans "Delete" %}</a></p>
+                {% endif %}
+            </div>
+
         {% endif %}
 
     {% else %}
-        {{ block.super }}
+        <div class="submit-row">
+            {% if perms.mapping.save_worksheet %}
+                <input type="submit" value="{% trans 'Save' %}" class="default" name="_continue"/>
+            {% endif %}
+        </div>
     {% endif %}
 {% endblock %}
