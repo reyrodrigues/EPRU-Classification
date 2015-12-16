@@ -224,12 +224,12 @@ class WorksheetAdmin(admin.ModelAdmin):
 
         obj.is_locked = True
         obj.unlocked_by = None
-
         obj.populate_stats()
+
+        super(WorksheetAdmin, self).save_model(request, obj, form, change)
 
         models.Scorecard.objects.create_from_worksheet(obj)
 
-        super(WorksheetAdmin, self).save_model(request, obj, form, change)
 
 
 admin.site.register(models.Worksheet, WorksheetAdmin)
