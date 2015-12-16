@@ -42,24 +42,25 @@ class Worksheet(models.Model, AdminUrlMixin):
     number_deaths = models.IntegerField(default=0, verbose_name=_('Number of deaths'),
                                         help_text=_(
                                             'How many deaths have been reported (in this country due to this emergency)?'))
-    number_deaths_source = models.URLField(verbose_name=_("Source"), blank=True, null=True, help_text=_(
-        'Copy the link for the source of the number of deaths here.	'))
+    number_deaths_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
+                                            help_text=_(
+                                                'Copy the link for the source of the number of deaths here.	'))
 
     number_injuries = models.IntegerField(default=0,
                                           verbose_name=_('Number of injuries'), help_text=_(
             'How many injuries have been reported (in this country due to this emergency)?'))
-    number_injuries_source = models.URLField(verbose_name=_("Source"), blank=True, null=True, help_text=_(
+    number_injuries_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True, help_text=_(
         'Copy the link for the source of the number of injuries here.	'), )
 
     number_affected = models.IntegerField(default=0, verbose_name=_('Affected'),
-                                          help_text=_('See notes on next page re: affected'))
-    number_affected_source = models.URLField(verbose_name=_("Source"), blank=True, null=True,
-                                             help_text=_('Copy the link for the number of affected here.'), )
+                                          help_text=_(''))
+    number_affected_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
+                                              help_text=_('Copy the link for the number of affected here.'), )
 
     number_displaced = models.IntegerField(default=0, verbose_name=_('Displaced'),
                                            help_text=_(''))
-    number_displaced_source = models.URLField(verbose_name=_("Source"), blank=True, null=True,
-                                              help_text=_('Copy the link for the displaced here.'), )
+    number_displaced_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
+                                               help_text=_('Copy the link for the displaced here.'), )
 
     # decision points
     concurrent_emergencies = models.BooleanField(
@@ -354,13 +355,13 @@ class Scorecard(models.Model, AdminUrlMixin):
     lack_of_actors = models.BooleanField(default=False, verbose_name=_('Lack of humanitarian actors'), )
 
     recorded_decision = models.PositiveIntegerField(default=1, null=True, blank=True, choices=DECISION_CHOICES,
-                                                    verbose_name=_('Recorded'))
+                                                    verbose_name=_('Recommended'))
     recorded_management = models.PositiveIntegerField(default=0, null=True, blank=True, choices=MANAGEMENT_CHOICES,
-                                                      verbose_name=_('Recorded'))
+                                                      verbose_name=_('Recommended'))
     recorded_type = models.PositiveIntegerField(default=0, null=True, blank=True, choices=TEAM_CHOICES,
-                                                verbose_name=_('Recorded'))
+                                                verbose_name=_('Recommended'))
     recorded_stance = models.PositiveIntegerField(default=0, null=True, blank=True, choices=STANCE_CHOICES,
-                                                  verbose_name=_('Recorded'))
+                                                  verbose_name=_('Recommended'))
 
     taken_decision = models.PositiveIntegerField(default=0, null=True, blank=True, choices=DECISION_CHOICES,
                                                  verbose_name=_('Taken'))
@@ -382,9 +383,11 @@ class Scorecard(models.Model, AdminUrlMixin):
     @property
     def description(self):
         return self.worksheet.description
+
     @property
     def start(self):
         return self.worksheet.start
+
     @property
     def country(self):
         return self.worksheet.emergency_country.name

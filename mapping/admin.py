@@ -227,6 +227,8 @@ class WorksheetAdmin(admin.ModelAdmin):
 
         obj.populate_stats()
 
+        models.Scorecard.objects.create_from_worksheet(obj)
+
         super(WorksheetAdmin, self).save_model(request, obj, form, change)
 
 
