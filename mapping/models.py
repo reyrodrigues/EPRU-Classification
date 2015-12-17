@@ -9,7 +9,7 @@ from django.conf import settings
 from .utils import get_reference_data
 
 
-class AdminUrlMixin:
+class AdminUrlMixin(object):
     def get_admin_url(self):
         from django.contrib.contenttypes.models import ContentType
         from django.core import urlresolvers
@@ -19,109 +19,7 @@ class AdminUrlMixin:
                                     args=(self.id,))
 
 
-class Worksheet(models.Model, AdminUrlMixin):
-    # metadata about location
-    emergency_country = CountryField(null=False, verbose_name=_('Emergency country'),
-                                     help_text=_('In what country is the emergency?'))
-    origin_country = CountryField(null=True, blank=True, verbose_name=_('Country of origin (if different)'),
-                                  help_text=_('What is the primary country of origin of the affected?'))
-
-    # metadata about timing and scope
-    start = models.DateField(null=True, verbose_name=_('Start date of crisis'),
-                             help_text=_('What is the start date of the emergency?'))
-    natural_disaster = models.BooleanField(default=False, verbose_name=_('Natural disaster'),
-                                           help_text=_('Was it caused primarily by a natural disaster?'))
-
-    # metadata
-    title = models.CharField(max_length=255, null=False, blank=False, verbose_name=_('Emergency name'),
-                             help_text=_('What is the name of the emergency?'))
-    description = models.TextField(null=False, blank=False, verbose_name=_('Description'),
-                                   help_text=_('Give a two sentence definition of the emergency.'))
-
-    # statistics
-    number_deaths = models.IntegerField(default=0, verbose_name=_('Number of deaths'),
-                                        help_text=_(
-                                            'How many deaths have been reported (in this country due to this emergency)?'))
-    number_deaths_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
-                                            help_text=_(
-                                                'Copy the link for the source of the number of deaths here.	'))
-
-    number_injuries = models.IntegerField(default=0,
-                                          verbose_name=_('Number of injuries'), help_text=_(
-            'How many injuries have been reported (in this country due to this emergency)?'))
-    number_injuries_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True, help_text=_(
-        'Copy the link for the source of the number of injuries here.	'), )
-
-    number_affected = models.IntegerField(default=0, verbose_name=_('Affected'),
-                                          help_text=_(''))
-    number_affected_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
-                                              help_text=_('Copy the link for the number of affected here.'), )
-
-    number_displaced = models.IntegerField(default=0, verbose_name=_('Displaced'),
-                                           help_text=_(''))
-    number_displaced_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
-                                               help_text=_('Copy the link for the displaced here.'), )
-
-    # decision points
-    concurrent_emergencies = models.BooleanField(
-        default=False,
-        verbose_name=_(
-            'Affected population is currently experiencing another classified emergency.'
-        ), help_text=_(''),
-    )
-    possible_concurrent_emergency = models.BooleanField(
-        default=False,
-        verbose_name=_(
-            'Any other area of the country (not the affected population) is experiencing another classified emergency.'
-        ), help_text=_(''),
-    )
-    rapid_access_possible = models.BooleanField(
-        default=False,
-        verbose_name=_('The IRC expects to be able to access the affected population within one week.'),
-        help_text=_(''),
-    )
-    registration_required = models.BooleanField(
-        default=False,
-        verbose_name=_('Registration is required.'),
-        help_text=_(''),
-    )
-    registration_possible = models.BooleanField(
-        default=False,
-        verbose_name=_('The IRC anticipates the ability to register in country.'),
-        help_text=_(''),
-    )
-    crisis_will_remain_same = models.BooleanField(
-        default=False,
-        verbose_name=_('The IRC expects the crisis to be as bad, or worse in 30 days.'),
-        help_text=_(''),
-    )
-
-    # other actors
-    msf = models.BooleanField(default=True, verbose_name=_("MSF"), help_text=_(''), )
-    sci = models.BooleanField(default=False, verbose_name=_("Save the Children"), help_text=_(''), )
-    world_vision = models.BooleanField(default=False, verbose_name=_("World Vision"), help_text=_(''), )
-    crs = models.BooleanField(default=False, verbose_name=_("CRS"), help_text=_(''), )
-    red_cross = models.BooleanField(default=False, verbose_name=_("IFRC/ICRC"), help_text=_(''), )
-    mercy_corps = models.BooleanField(default=False, verbose_name=_("Mercy Corps"), help_text=_(''), )
-    imc = models.BooleanField(default=False, verbose_name=_("IMC"), help_text=_(''), )
-
-    created_on = models.DateTimeField(null=True, auto_now_add=True, auto_created=True)
-    modified_on = models.DateTimeField(null=True, auto_now=True, auto_created=True)
-    generated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True)
-
-    is_locked = models.BooleanField(default=True)
-    unlocked_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_('Being edited by'),
-                                    related_name="locked_worksheets", )
-
-    # Fields that are copied from reference tables
-    emergency_classification_rank = models.IntegerField(default=0, null=True, blank=True,
-                                                        verbose_name=_("Emergency classification rank"), )
-    pre_crisis_vulnerability_rank = models.IntegerField(default=0, null=True, blank=True,
-                                                        verbose_name=_("Pre-crisis vulnerability rank"), )
-    pre_crisis_population = models.IntegerField(default=0, null=True, blank=True,
-                                                verbose_name=_("Pre-crisis population"), )
-    irc_robustness = models.IntegerField(default=0, null=True, blank=True, verbose_name=_("IRC robustness"), )
-
+class WorksheetPropertiesMixin(object):
     def _get_lookup_data(self):
         if not hasattr(self, '_lookup_data'):
             from . import utils
@@ -271,6 +169,111 @@ class Worksheet(models.Model, AdminUrlMixin):
         combined = self.pre_crisis_vulnerability_rank + self.emergency_classification_rank
         return 3 if combined >= 12 else (2 if combined >= 10 else 1)
 
+
+class Worksheet(models.Model, AdminUrlMixin, WorksheetPropertiesMixin):
+    # metadata about location
+    emergency_country = CountryField(null=False, verbose_name=_('Emergency country'),
+                                     help_text=_('In what country is the emergency?'))
+    origin_country = CountryField(null=True, blank=True, verbose_name=_('Country of origin (if different)'),
+                                  help_text=_('What is the primary country of origin of the affected?'))
+
+    # metadata about timing and scope
+    start = models.DateField(null=True, verbose_name=_('Start date of crisis'),
+                             help_text=_('What is the start date of the emergency?'))
+    natural_disaster = models.BooleanField(default=False, verbose_name=_('Natural disaster'),
+                                           help_text=_('Was it caused primarily by a natural disaster?'))
+
+    # metadata
+    title = models.CharField(max_length=255, null=False, blank=False, verbose_name=_('Emergency name'),
+                             help_text=_('What is the name of the emergency?'))
+    description = models.TextField(null=False, blank=False, verbose_name=_('Description'),
+                                   help_text=_('Give a two sentence definition of the emergency.'))
+
+    # statistics
+    number_deaths = models.IntegerField(default=0, verbose_name=_('Number of deaths'),
+                                        help_text=_(
+                                            'How many deaths have been reported (in this country due to this emergency)?'))
+    number_deaths_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
+                                            help_text=_(
+                                                'Copy the link for the source of the number of deaths here.	'))
+
+    number_injuries = models.IntegerField(default=0,
+                                          verbose_name=_('Number of injuries'), help_text=_(
+            'How many injuries have been reported (in this country due to this emergency)?'))
+    number_injuries_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
+                                              help_text=_(
+                                                  'Copy the link for the source of the number of injuries here.	'), )
+
+    number_affected = models.IntegerField(default=0, verbose_name=_('Affected'),
+                                          help_text=_(''))
+    number_affected_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
+                                              help_text=_('Copy the link for the number of affected here.'), )
+
+    number_displaced = models.IntegerField(default=0, verbose_name=_('Displaced'),
+                                           help_text=_(''))
+    number_displaced_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
+                                               help_text=_('Copy the link for the displaced here.'), )
+
+    # decision points
+    concurrent_emergencies = models.BooleanField(
+        default=False,
+        verbose_name=_(
+            'Affected population is currently experiencing another classified emergency.'
+        ), help_text=_(''),
+    )
+    possible_concurrent_emergency = models.BooleanField(
+        default=False,
+        verbose_name=_(
+            'Any other area of the country (not the affected population) is experiencing another classified emergency.'
+        ), help_text=_(''),
+    )
+    rapid_access_possible = models.BooleanField(
+        default=False,
+        verbose_name=_('The IRC expects to be able to access the affected population within one week.'),
+        help_text=_(''),
+    )
+    registration_required = models.BooleanField(
+        default=False,
+        verbose_name=_('Registration is required.'),
+        help_text=_(''),
+    )
+    registration_possible = models.BooleanField(
+        default=False,
+        verbose_name=_('The IRC anticipates the ability to register in country.'),
+        help_text=_(''),
+    )
+    crisis_will_remain_same = models.BooleanField(
+        default=False,
+        verbose_name=_('The IRC expects the crisis to be as bad, or worse in 30 days.'),
+        help_text=_(''),
+    )
+
+    # other actors
+    msf = models.BooleanField(default=True, verbose_name=_("MSF"), help_text=_(''), )
+    sci = models.BooleanField(default=False, verbose_name=_("Save the Children"), help_text=_(''), )
+    world_vision = models.BooleanField(default=False, verbose_name=_("World Vision"), help_text=_(''), )
+    crs = models.BooleanField(default=False, verbose_name=_("CRS"), help_text=_(''), )
+    red_cross = models.BooleanField(default=False, verbose_name=_("IFRC/ICRC"), help_text=_(''), )
+    mercy_corps = models.BooleanField(default=False, verbose_name=_("Mercy Corps"), help_text=_(''), )
+    imc = models.BooleanField(default=False, verbose_name=_("IMC"), help_text=_(''), )
+
+    created_on = models.DateTimeField(null=True, auto_now_add=True, auto_created=True, verbose_name='Date Classified')
+    modified_on = models.DateTimeField(null=True, auto_now=True, auto_created=True, verbose_name='Date Updated')
+    generated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True)
+
+    is_locked = models.BooleanField(default=True)
+    unlocked_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_('Being edited by'),
+                                    related_name="locked_worksheets", )
+
+    # Fields that are copied from reference tables
+    emergency_classification_rank = models.IntegerField(default=0, null=True, blank=True,
+                                                        verbose_name=_("Emergency classification rank"), )
+    pre_crisis_vulnerability_rank = models.IntegerField(default=0, null=True, blank=True,
+                                                        verbose_name=_("Pre-crisis vulnerability rank"), )
+    pre_crisis_population = models.IntegerField(default=0, null=True, blank=True,
+                                                verbose_name=_("Pre-crisis population"), )
+    irc_robustness = models.IntegerField(default=0, null=True, blank=True, verbose_name=_("IRC robustness"), )
+
     def populate_stats(self):
         df = get_reference_data()
 
@@ -282,14 +285,12 @@ class Worksheet(models.Model, AdminUrlMixin):
             self.irc_robustness = result['IRCR']
             self.emergency_classification_rank = self.calculate_rank()
 
-
     def __str__(self):
         return "{}, {}: {}".format(
             self.emergency_country,
             self.start,
             self.title
         ).encode('ascii')
-
 
     class Meta:
         permissions = (
@@ -299,6 +300,8 @@ class Worksheet(models.Model, AdminUrlMixin):
 
 
 class ScorecardManager(models.Manager):
+    def active(self):
+        return self.filter(active=True)
     def create_from_worksheet(self, worksheet):
         instance = self.create(
             worksheet=worksheet,
@@ -313,8 +316,10 @@ class ScorecardManager(models.Manager):
             recorded_decision=worksheet.requires_response,
             recorded_management=2 if worksheet.epru_lead else 1,
             recorded_stance=worksheet.response_stance,
-        )
 
+            active=True,
+        )
+        worksheet.scorecards.update(active=False)
         instance.save()
         return instance
 
@@ -375,6 +380,7 @@ class Scorecard(models.Model, AdminUrlMixin):
     caveats = models.TextField(blank=True, null=True)
     next_actions = models.TextField(blank=True, null=True)
     action_taken = models.TextField(blank=True, null=True)
+    active = models.BooleanField(default=False)
 
     @property
     def title(self):
@@ -384,9 +390,11 @@ class Scorecard(models.Model, AdminUrlMixin):
     def description(self):
         return self.worksheet.description
 
-    @property
     def start(self):
         return self.worksheet.start
+    start.short_description = _('Start date of crisis')
+    start = property(start)
+
 
     @property
     def country(self):

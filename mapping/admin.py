@@ -67,16 +67,28 @@ class ScorecardAdmin(admin.ModelAdmin):
                 ),
             )
         }),
-        ("Response Decision", {'fields': (('recorded_decision', 'taken_decision'),)}),
-        ("Response Management", {'fields': (('recorded_management', 'taken_management'),)}),
-        ("Response Type", {'fields': (('recorded_type', 'taken_type'),)}),
-        ("Response Type", {'fields': (('recorded_stance', 'taken_stance'),)}),
+        ("Response Decision", {'fields': ('recorded_decision', 'taken_decision')}),
+        ("Response Management", {'fields': ('recorded_management', 'taken_management')}),
+        ("Response Type", {'fields': ('recorded_type', 'taken_type')}),
+        ("Response Type", {'fields': ('recorded_stance', 'taken_stance')}),
         (None, {'fields': (
             "caveats",
             "next_actions",
             "action_taken",
         )}),
     ]
+
+    list_display = (
+        "id",
+        "title",
+        "country",
+        "emergency_classification_rank",
+        "pre_crisis_vulnerability_rank",
+        "irc_robustness",
+    )
+
+    def get_queryset(self, request):
+        return models.Scorecard.objects.active()
 
 
 class WorksheetAdmin(admin.ModelAdmin):
@@ -86,31 +98,13 @@ class WorksheetAdmin(admin.ModelAdmin):
         (None, {'fields': ['start', 'natural_disaster', 'title', 'description']}),
         ('Statistics', {'fields': [
             'pre_crisis_population',
-            (
-                'number_deaths',
-                # 'proportion_of_deaths',
-            ),
-
+            'number_deaths',
             'number_deaths_source',
-            (
-                'number_injuries',
-                # 'proportion_of_injured',
-            ),
-
+            'number_injuries',
             'number_injuries_source',
-
-            (
-                'number_affected',
-                # 'proportion_of_affected',
-            ),
-
+            'number_affected',
             'number_affected_source',
-
-            (
-                'number_displaced',
-                # 'proportion_of_displaced',
-            ),
-
+            'number_displaced',
             'number_displaced_source',
         ]}),
         ('Questionnaire', {'fields': [
@@ -124,24 +118,18 @@ class WorksheetAdmin(admin.ModelAdmin):
         ("""Are the following actors reportedly responding to the emergency,
         in similar locations and sectors that the IRC would plan to respond in?""",
          {'fields': [
-             (
-                 'msf',
-                 'sci',
-             ),
-             (
-                 'world_vision',
-                 'crs',
-             ),
-             (
-                 'red_cross',
-                 'mercy_corps'
-             ),
+             'msf',
+             'sci',
+             'world_vision',
+             'crs',
+             'red_cross',
+             'mercy_corps'
              'imc',
 
          ]}),
     ]
 
-    list_display = ('title', 'unlocked_by')
+    list_display = ("id", 'title', 'emergency_country', 'origin_country', 'created_on', 'modified_on', 'unlocked_by')
 
     @csrf_protect_m
     @transaction.atomic
@@ -229,7 +217,6 @@ class WorksheetAdmin(admin.ModelAdmin):
         super(WorksheetAdmin, self).save_model(request, obj, form, change)
 
         models.Scorecard.objects.create_from_worksheet(obj)
-
 
 
 admin.site.register(models.Worksheet, WorksheetAdmin)
