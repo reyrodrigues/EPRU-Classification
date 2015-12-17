@@ -4,10 +4,10 @@ __author__ = 'reyrodrigues'
 from django.shortcuts import render
 from django.template import RequestContext
 from django.http import HttpResponse
-import pandas
 import json
 from django.conf import settings
 import os
+import pandas
 
 from . import utils
 

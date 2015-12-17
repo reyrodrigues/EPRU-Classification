@@ -103,11 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
-
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
-
-
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'America/New_York'
@@ -118,20 +113,18 @@ USE_L10N = True
 
 USE_TZ = True
 
-ALLOWED_HOSTS = ['*']
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+ALLOWED_HOSTS = ['*']
 
 import dj_database_url
 
 DJ_URL = dj_database_url.config()
 if 'ENGINE' in DJ_URL:
     DATABASES['default'] = DJ_URL
+
 
 
 LOOKUP_TABLES_URL = 'https://rescue.box.com/shared/static/kdfeb3xzkk056u02d1p6wewch6tt5bi4.xlsx'

@@ -70,8 +70,8 @@ class ScorecardAdmin(admin.ModelAdmin):
         ("Response Decision", {'fields': ('recorded_decision', 'taken_decision')}),
         ("Response Management", {'fields': ('recorded_management', 'taken_management')}),
         ("Response Type", {'fields': ('recorded_type', 'taken_type')}),
-        ("Response Type", {'fields': ('recorded_stance', 'taken_stance')}),
-        (None, {'fields': (
+        ("Response Stance", {'fields': ('recorded_stance', 'taken_stance')}),
+        ("Details", {'fields': (
             "caveats",
             "next_actions",
             "action_taken",
