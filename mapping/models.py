@@ -10,6 +10,10 @@ from .utils import get_reference_data
 
 
 class AdminUrlMixin(object):
+    """
+    This mixin just provides the link to this objects admin page
+    """
+
     def get_admin_url(self):
         from django.contrib.contenttypes.models import ContentType
         from django.core import urlresolvers
@@ -20,6 +24,10 @@ class AdminUrlMixin(object):
 
 
 class WorksheetPropertiesMixin(object):
+    """
+    These are all the properties of the Worksheet class
+    """
+
     def _get_lookup_data(self):
         if not hasattr(self, '_lookup_data'):
             from . import utils
@@ -302,6 +310,7 @@ class Worksheet(models.Model, AdminUrlMixin, WorksheetPropertiesMixin):
 class ScorecardManager(models.Manager):
     def active(self):
         return self.filter(active=True)
+
     def create_from_worksheet(self, worksheet):
         instance = self.create(
             worksheet=worksheet,
@@ -339,9 +348,9 @@ TEAM_CHOICES = (
     (2, 'Two teams'),
 )
 STANCE_CHOICES = (
-    (1, 'Lower Level/One/A'),
-    (2, 'Mid Level/Two/B'),
-    (3, 'High Level/Three/C'),
+    (1, 'A'),
+    (2, 'B'),
+    (3, 'C'),
 )
 
 
@@ -392,6 +401,7 @@ class Scorecard(models.Model, AdminUrlMixin):
 
     def start(self):
         return self.worksheet.start
+
     start.short_description = _('Start date of crisis')
     start = property(start)
 

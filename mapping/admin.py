@@ -129,7 +129,16 @@ class WorksheetAdmin(admin.ModelAdmin):
          ]}),
     ]
 
-    list_display = ("id", 'title', 'emergency_country', 'origin_country', 'created_on', 'modified_on', 'unlocked_by')
+    list_display = (
+        "id",
+        'title',
+        'emergency_country',
+        'origin_country',
+        'scorecard',
+        'created_on',
+        'modified_on',
+        'unlocked_by'
+    )
 
     @csrf_protect_m
     @transaction.atomic
@@ -217,6 +226,17 @@ class WorksheetAdmin(admin.ModelAdmin):
         super(WorksheetAdmin, self).save_model(request, obj, form, change)
 
         models.Scorecard.objects.create_from_worksheet(obj)
+
+    def scorecard(self, obj):
+        scorecards = list(obj.scorecards.filter(active=True))
+        if scorecards:
+            card = scorecards[-1]
+            return "<a href=\"{}\">Scorecard</a>".format(card.get_admin_url())
+        else:
+            return "-"
+
+    scorecard.allow_tags = True
+    scorecard.short_description = 'Scorecard'
 
 
 admin.site.register(models.Worksheet, WorksheetAdmin)
