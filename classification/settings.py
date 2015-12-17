@@ -20,10 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'rxenk+=7ufy%&t568-lts-6-^sarn!#fc4f(4b%z8g_)$0eepu'
+SECRET_KEY = os.getenv('SECRET_KEY', 'rxenk+=7ufy%&t568-lts-6-^sarn!#fc4f(4b%z8g_)$0eepu')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG', False)
 
 
 # Application definition
@@ -113,7 +113,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -125,6 +124,20 @@ DJ_URL = dj_database_url.config()
 if 'ENGINE' in DJ_URL:
     DATABASES['default'] = DJ_URL
 
-
-
 LOOKUP_TABLES_URL = 'https://rescue.box.com/shared/static/kdfeb3xzkk056u02d1p6wewch6tt5bi4.xlsx'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
