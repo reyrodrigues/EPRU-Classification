@@ -1,0 +1,94 @@
+{% load static %}
+{% load compress %}
+
+<!DOCTYPE html>
+<html lang="en" data-ng-app="app">
+
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Classification System</title>
+    <meta name="description" content="Angularjs, Html5, Music, Landing, 4 in 1 ui kits package"/>
+    <meta name="keywords"
+          content="AngularJS, angular, bootstrap, admin, dashboard, panel, app, charts, components,flat, responsive, layout, kit, ui, route, web, app, widgets"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    {% compress css %}
+        <link rel="stylesheet" href="{% static "libs/assets/animate.css/animate.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/assets/font-awesome/css/font-awesome.min.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/assets/simple-line-icons/css/simple-line-icons.css" %}"
+              type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/angular/angular-material/angular-material.css" %}"
+              type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/jquery/bootstrap/dist/css/bootstrap.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "css/material-design-icons.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "css/md.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "css/font.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "css/app.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "css/app.custom.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/jquery/fullcalendar/dist/fullcalendar.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/jquery/fullcalendar/dist/fullcalendar.theme.css" %}"
+              type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/jquery/bootstrap-daterangepicker/daterangepicker-bs3.css" %}"
+              type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/jquery/footable/v3/css/footable.bootstrap.min.css" %}"
+              type="text/css"/>
+        <link rel="stylesheet" href="{% static "libs/angular/angular-ui-grid/ui-grid.min.css" %}" type="text/css"/>
+
+    {% endcompress %}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css"/>
+
+</head>
+
+<body ng-controller="AppCtrl">
+    <div ui-view layout="row" layout-fill></div>
+<script type="text/javascript">
+    window.clientId = '{{ oauth_application.client_id }}';
+    window.clientSecret = '{{ oauth_application.client_secret }}';
+</script>
+<script src="{% static "libs/jquery/jquery/dist/jquery.js" %}"></script>
+<script src="{% static "libs/angular/angular/angular.js" %}"></script>
+
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
+<script type="text/javascript" src="//stamen-maps.a.ssl.fastly.net/js/tile.stamen.js"></script>
+
+{% compress js %}
+    <script src="{% static "libs/jquery/moment/moment.js" %}"></script>
+    <script src="{% static "libs/jquery/screenfull/dist/screenfull.min.js" %}"></script>
+    <script src="{% static "libs/jquery/jquery.sparkline/dist/jquery.sparkline.retina.js" %}"></script>
+    <script src="{% static "libs/jquery/flot/jquery.flot.js" %}"></script>
+    <script src="{% static "libs/jquery/flot/jquery.flot.pie.js" %}"></script>
+    <script src="{% static "libs/jquery/flot/jquery.flot.resize.js" %}"></script>
+    <script src="{% static "libs/jquery/flot.tooltip/js/jquery.flot.tooltip.min.js" %}"></script>
+    <script src="{% static "libs/jquery/flot.orderbars/js/jquery.flot.orderBars.js" %}"></script>
+    <script src="{% static "libs/jquery/flot-spline/js/jquery.flot.spline.min.js" %}"></script>
+    <script src="{% static "libs/jquery/jquery.easy-pie-chart/dist/jquery.easypiechart.fill.js" %}"></script>
+    <script src="{% static "libs/jquery/fullcalendar/dist/fullcalendar.min.js" %}"></script>
+    <script src="{% static "libs/jquery/bootstrap-daterangepicker/daterangepicker.js" %}"></script>
+    <script src="{% static "libs/jquery/footable/v3/js/footable.min.js" %}"></script>
+    <script src="{% static "libs/jquery/slimscroll/jquery.slimscroll.min.js" %}"></script>
+    <script src="{% static "libs/angular/angular-animate/angular-animate.js" %}"></script>
+    <script src="{% static "libs/angular/angular-aria/angular-aria.js" %}"></script>
+    <script src="{% static "libs/angular/angular-cookies/angular-cookies.js" %}"></script>
+    <script src="{% static "libs/angular/angular-messages/angular-messages.js" %}"></script>
+    <script src="{% static "libs/angular/angular-resource/angular-resource.js" %}"></script>
+    <script src="{% static "libs/angular/angular-sanitize/angular-sanitize.js" %}"></script>
+    <script src="{% static "libs/angular/angular-touch/angular-touch.js" %}"></script>
+    <script src="{% static "libs/angular/angular-material/angular-material.js" %}"></script>
+    <script src="{% static "libs/angular/angular-ui-router/release/angular-ui-router.js" %}"></script>
+    <script src="{% static "libs/angular/ngstorage/ngStorage.js" %}"></script>
+    <script src="{% static "libs/angular/angular-ui-utils/ui-utils.js" %}"></script>
+    <script src="{% static "libs/angular/angular-bootstrap/ui-bootstrap-tpls.js" %}"></script>
+    <script src="{% static "libs/angular/ngstorage/ngStorage.js" %}"></script>
+    <script src="{% static "libs/angular/angular-ui-calendar/src/calendar.js" %}"></script>
+    <script src="{% static "libs/angular/angular-ui-grid/ui-grid.min.js" %}"></script>
+    <script src="{% static "libs/angular/ui-leaflet/dist/ui-leaflet.js" %}"></script>
+    <script src="{% static "libs/angular/angular-simple-logger/dist/angular-simple-logger.js" %}"></script>
+
+    <script src="{% static "libs/angular/query-string/query-string.js" %}"></script>
+    <script src="{% static "libs/angular/angular-oauth2/dist/angular-oauth2.js" %}"></script>
+{% endcompress %}
+<script src="{% static "js/modules.js" %}"></script>
+
+</body>
+
+</html>

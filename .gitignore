@@ -76,4 +76,4 @@ local_settings.py
 .env
 .env-staging
 *~
-static
+.v/

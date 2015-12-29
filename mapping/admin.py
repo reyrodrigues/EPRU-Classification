@@ -123,7 +123,7 @@ class WorksheetAdmin(admin.ModelAdmin):
              'world_vision',
              'crs',
              'red_cross',
-             'mercy_corps'
+             'mercy_corps',
              'imc',
 
          ]}),

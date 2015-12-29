@@ -177,6 +177,15 @@ class WorksheetPropertiesMixin(object):
         combined = self.pre_crisis_vulnerability_rank + self.emergency_classification_rank
         return 3 if combined >= 12 else (2 if combined >= 10 else 1)
 
+    @property
+    def scorecard(self):
+        scorecards = list(self.scorecards.filter(active=True))
+        if scorecards:
+            card = scorecards[-1]
+            return card
+        else:
+            return None
+
 
 class Worksheet(models.Model, AdminUrlMixin, WorksheetPropertiesMixin):
     # metadata about location

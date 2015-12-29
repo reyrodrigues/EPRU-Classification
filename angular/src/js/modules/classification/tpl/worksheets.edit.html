@@ -1,0 +1,223 @@
+<div>
+<form name="editForm" ng-submit="save">
+<md-toolbar md-scroll-shrink>
+    <div class="md-toolbar-tools">Worksheet - {{ worksheet.title }}</div>
+</md-toolbar>
+<md-card>
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">Emergency Summary</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+        <md-input-container class="md-block">
+            <label>{{ metadata.title.label }}</label>
+            <input name="title" ng-required="metadata.title.required" ng-model="worksheet.title"/>
+
+            <div class="hint">{{ metadata.title.help_text }}</div>
+        </md-input-container>
+        <div layout>
+            <md-input-container flex>
+                <label>{{ metadata.emergency_country.label }}</label>
+                <md-select ng-model="worksheet.emergency_country"
+                           ng-required="metadata.emergency_country.required"
+                           placeholder="{{ metadata.emergency_country.label }}"
+                           name="emergency_country">
+                    <md-option ng-value="country.id"
+                               ng-repeat="country in countries">{{ country.name }}</md-option>
+                </md-select>
+                <div class="hint">{{ metadata.emergency_country.help_text }}</div>
+            </md-input-container>
+            <md-input-container flex>
+                <label>{{ metadata.origin_country.label }}</label>
+                <md-select ng-model="worksheet.origin_country"
+                           ng-required="metadata.origin_country.required"
+                           name="origin_country"
+                           placeholder="{{ metadata.origin_country.label }}">
+                    <md-option ng-value="country.id"
+                               ng-repeat="country in countries">{{ country.name }}</md-option>
+                </md-select>
+                <div class="hint">{{ metadata.origin_country.help_text }}</div>
+            </md-input-container>
+        </div>
+        <h5>{{ metadata.start.label }}:</h5>
+
+        <div layout>
+            <md-datepicker ng-model="worksheet.start" flex></md-datepicker>
+        </div>
+        <div layout>
+            <md-input-container>
+                <md-checkbox ng-model="worksheet.natural_disaster"
+                             aria-label="{{ metadata.natural_disaster.label }}"
+                             class="md-primary">
+                    {{ metadata.natural_disaster.label }}
+                </md-checkbox>
+            </md-input-container>
+        </div>
+
+        <md-input-container class="md-block">
+            <label>{{ metadata.description.label }}</label>
+            <textarea ng-model="worksheet.description" columns="1" md-maxlength="1000" rows="5"></textarea>
+
+            <div class="hint">{{ metadata.description.help_text }}</div>
+        </md-input-container>
+    </md-card-content>
+</md-card>
+<md-card>
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">Emergency Facts</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+        <div layout layout-xs="column">
+            <md-input-container flex="30">
+                <label>{{ metadata.number_deaths.label }}</label>
+                <input name="number_deaths" type="number" ng-min="0" ng-required="metadata.number_deaths.required"
+                       ng-model="worksheet.number_deaths"/>
+            </md-input-container>
+            <md-input-container flex="70">
+                <label>{{ metadata.number_deaths_source.label }}</label>
+                <input name="number_deaths_source" type="text" ng-required="metadata.number_deaths_source.required"
+                       ng-model="worksheet.number_deaths_source"/>
+            </md-input-container>
+        </div>
+        <div layout layout-xs="column">
+            <md-input-container flex="30">
+                <label>{{ metadata.number_injuries.label }}</label>
+                <input name="number_injuries" type="number" ng-min="0" ng-required="metadata.number_injuries.required"
+                       ng-model="worksheet.number_injuries"/>
+            </md-input-container>
+            <md-input-container flex="70">
+                <label>{{ metadata.number_injuries_source.label }}</label>
+                <input name="number_injuries_source" type="text" ng-required="metadata.number_injuries_source.required"
+                       ng-model="worksheet.number_injuries_source"/>
+            </md-input-container>
+        </div>
+        <div layout layout-xs="column">
+            <md-input-container flex="30">
+                <label>{{ metadata.number_affected.label }}</label>
+                <input name="number_affected" type="number" ng-min="0" ng-required="metadata.number_affected.required"
+                       ng-model="worksheet.number_affected"/>
+            </md-input-container>
+            <md-input-container flex="70">
+                <label>{{ metadata.number_affected_source.label }}</label>
+                <input name="number_affected_source" type="text" ng-required="metadata.number_affected_source.required"
+                       ng-model="worksheet.number_affected_source"/>
+            </md-input-container>
+        </div>
+        <div layout layout-xs="column">
+            <md-input-container flex="30">
+                <label>{{ metadata.number_displaced.label }}</label>
+                <input name="number_displaced" type="number" ng-min="0" ng-required="metadata.number_displaced.required"
+                       ng-model="worksheet.number_displaced"/>
+            </md-input-container>
+            <md-input-container flex="70">
+                <label>{{ metadata.number_displaced_source.label }}</label>
+                <input name="number_displaced_source" type="text"
+                       ng-required="metadata.number_displaced_source.required"
+                       ng-model="worksheet.number_displaced_source"/>
+            </md-input-container>
+        </div>
+    </md-card-content>
+</md-card>
+<md-card>
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">Emergency Details</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+        <div layout="column">
+            <md-checkbox ng-model="worksheet.concurrent_emergencies"
+                         aria-label="{{ metadata.concurrent_emergencies.label }}"
+                         class="md-primary">
+                {{ metadata.concurrent_emergencies.label }}
+            </md-checkbox>
+
+            <md-checkbox ng-model="worksheet.possible_concurrent_emergency"
+                         aria-label="{{ metadata.possible_concurrent_emergency.label }}"
+                         class="md-primary">
+                {{ metadata.possible_concurrent_emergency.label }}
+            </md-checkbox>
+
+            <md-checkbox ng-model="worksheet.rapid_access_possible"
+                         aria-label="{{ metadata.rapid_access_possible.label }}"
+                         class="md-primary">
+                {{ metadata.rapid_access_possible.label }}
+            </md-checkbox>
+
+            <md-checkbox ng-model="worksheet.registration_required"
+                         aria-label="{{ metadata.registration_required.label }}"
+                         class="md-primary">
+                {{ metadata.registration_required.label }}
+            </md-checkbox>
+
+            <md-checkbox ng-model="worksheet.registration_possible"
+                         aria-label="{{ metadata.registration_possible.label }}"
+                         class="md-primary">
+                {{ metadata.registration_possible.label }}
+            </md-checkbox>
+
+            <md-checkbox ng-model="worksheet.crisis_will_remain_same"
+                         aria-label="{{ metadata.crisis_will_remain_same.label }}"
+                         class="md-primary">
+                {{ metadata.crisis_will_remain_same.label }}
+            </md-checkbox>
+
+        </div>
+    </md-card-content>
+</md-card>
+<md-card>
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">Other Actors</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+        <div layout="row" layout-xs="column" flex>
+            <md-checkbox ng-model="worksheet.msf" aria-label="{{ metadata.msf.label }}"
+                         class="md-primary">
+                {{ metadata.msf.label }}
+            </md-checkbox>
+            <md-checkbox ng-model="worksheet.sci" aria-label="{{ metadata.sci.label }}"
+                         class="md-primary">
+                {{ metadata.sci.label }}
+            </md-checkbox>
+            <md-checkbox ng-model="worksheet.world_vision" aria-label="{{ metadata.world_vision.label }}"
+                         class="md-primary">
+                {{ metadata.world_vision.label }}
+            </md-checkbox>
+            <md-checkbox ng-model="worksheet.crs" aria-label="{{ metadata.crs.label }}"
+                         class="md-primary">
+                {{ metadata.crs.label }}
+            </md-checkbox>
+        </div>
+        <div layout="row" layout-xs="column" flex>
+
+            <md-checkbox ng-model="worksheet.red_cross" aria-label="{{ metadata.red_cross.label }}"
+                         class="md-primary">
+                {{ metadata.red_cross.label }}
+            </md-checkbox>
+            <md-checkbox ng-model="worksheet.mercy_corps" aria-label="{{ metadata.mercy_corps.label }}"
+                         class="md-primary">
+                {{ metadata.mercy_corps.label }}
+            </md-checkbox>
+            <md-checkbox ng-model="worksheet.imc" aria-label="{{ metadata.imc.label }}"
+                         class="md-primary">
+                {{ metadata.imc.label }}
+            </md-checkbox>
+        </div>
+
+    </md-card-content>
+</md-card>
+<md-card>
+    <md-card-content>
+        <div layout="row" layout-xs="column" layout-align="end center">
+            <md-button class="md-raised md-warn" ui-sref="^.list">Cancel</md-button>
+            <md-button class="md-raised md-primary" ng-click="save()">Save</md-button>
+        </div>
+    </md-card-content>
+</md-card>
+</form>
+</div>

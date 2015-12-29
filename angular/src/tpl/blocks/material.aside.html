@@ -1,0 +1,30 @@
+<div class="clearfix" id="aside-user">
+  <div class="wrapper light-blue-100">
+    <a href class="hidden-folded" ui-toggle-class="show" target="#user">
+      <span class="block m-t-sm auto">
+        <span class="pull-right">
+          <i class="fa fa-fw fa-caret-down text"></i>
+          <i class="fa fa-fw fa-caret-up text-active"></i>
+        </span>
+        <strong class="font-bold text-lt">{{ currentUser.first_name }} {{ currentUser.last_name }}</strong>
+      </span>
+    </a>
+  </div>
+</div>
+<!-- / user -->
+
+<!-- nav -->
+<nav class="navi hide" id="user">
+  <ul class="nav b-b m-t-sm">
+    <li class="m-b-sm">
+      <a ui-sref="login">
+        <i class="glyphicon glyphicon-log-out icon"></i>
+        <span>Logout</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav ui-nav class="navi clearfix" ng-include="'tpl/blocks/material.nav.html'"></nav>
+<!-- nav -->
+
+
