@@ -123,100 +123,43 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('tpl/blocks/material.layout.html',
-    "<md-sidenav md-is-locked-open=\"$mdMedia('gt-sm')\" md-component-id=\"left\"\r" +
+    "<div ng-init=\"app.settings.container = false;\" class=\"md-navbar navbar blue-grey md-whiteframe-z1\"\r" +
     "\n" +
-    "            class=\"md-whiteframe-z2 md-sidenav-left\">\r" +
-    "\n" +
-    "    <md-toolbar md-theme=\"custom\" class=\"md-hue-1 md-whiteframe-z2\">\r" +
-    "\n" +
-    "        <md-button layout=\"row\" layout-align=\"center center\" class=\"md-toolbar-tools md-warn\"\r" +
-    "\n" +
-    "                   href=\"https://github.com/flatlogic/angular-material-dashboard\">\r" +
-    "\n" +
-    "            <h1>{{ app.name }}</h1>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "    </md-toolbar>\r" +
-    "\n" +
-    "    <md-button ng-repeat-start=\"item in vm.menuItems\" layout=\"column\" layout-align=\"center center\"\r" +
-    "\n" +
-    "               flex class=\"capitalize\" ng-click=\"vm.selectItem(item)\"\r" +
-    "\n" +
-    "               ui-sref-active=\"md-warn\" ui-sref=\"{{ item.sref }}\">\r" +
-    "\n" +
-    "        <div hide-sm hide-md class=\"md-tile-content\">\r" +
-    "\n" +
-    "            <i class=\"material-icons md-36\">{{ item.icon }}</i>\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div class=\"md-tile-content\">\r" +
-    "\n" +
-    "            {{ item.name }}\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "    </md-button>\r" +
-    "\n" +
-    "    <md-divider ng-repeat-end></md-divider>\r" +
-    "\n" +
-    "    <md-button hide-gt-md flex ng-click=\"vm.showActions($event)\">\r" +
-    "\n" +
-    "        <div layout=\"row\" class=\"md-tile-content\">\r" +
-    "\n" +
-    "            Actions\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "    </md-button>\r" +
-    "\n" +
-    "</md-sidenav>\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "<div layout=\"column\" flex>\r" +
-    "\n" +
-    "    <md-toolbar layout=\"row\" layout-align=\"end center\">\r" +
-    "\n" +
-    "        <md-button hide-sm class=\"toolbar-button\" aria-label=\"Search\">\r" +
-    "\n" +
-    "            <i class=\"material-icons\">search</i>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "        <md-button hide-sm class=\"toolbar-button\" aria-label=\"Notifications\">\r" +
-    "\n" +
-    "            <i class=\"material-icons\">notifications</i>\r" +
-    "\n" +
-    "            <span class=\"notifications-label\">7</span>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "        <md-button hide-sm class=\"toolbar-button\" aria-label=\"Settings\">\r" +
-    "\n" +
-    "            <i class=\"material-icons\">settings</i>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "        <md-button hide-gt-sm ng-click=\"toggleItemsList()\" aria-label=\"Menu\">\r" +
-    "\n" +
-    "            <i class=\"material-icons\">menu</i>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "    </md-toolbar>\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "    <md-content flex class=\"page-content\">\r" +
-    "\n" +
-    "        <div ui-view></div>\r" +
-    "\n" +
-    "    </md-content>\r" +
+    "     data-ng-include=\" 'tpl/blocks/material.header.html' \">\r" +
     "\n" +
     "</div>\r" +
-    "\n"
+    "\n" +
+    "<div layout=\"row\">\r" +
+    "\n" +
+    "    <!-- menu -->\r" +
+    "\n" +
+    "    <div flex class=\"bg-white md-whiteframe-z0 md-aside md-content hidden-xs fill-screen\"\r" +
+    "\n" +
+    "         data-ng-include=\" 'tpl/blocks/material.aside.html' \">\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "    <!-- / menu -->\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    <!-- view -->\r" +
+    "\n" +
+    "    <div flex layout=\"column\">\r" +
+    "\n" +
+    "        <div ui-butterbar></div>\r" +
+    "\n" +
+    "        <a href class=\"off-screen-toggle hide\" ui-toggle-class=\"off-screen\" data-target=\".md-aside\"></a>\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "        <div class=\"md-content\" ui-view></div>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "    <!-- / view -->\r" +
+    "\n" +
+    "</div>"
   );
 
 
@@ -265,6 +208,284 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "\n" +
     "<!-- / list -->\r" +
     "\n"
+  );
+
+
+  $templateCache.put('js/modules/classification/tpl/scorecards.edit.html',
+    "<div>\n" +
+    "<md-toolbar md-scroll-shrink>\n" +
+    "    <div class=\"md-toolbar-tools\">Scorecard - {{ worksheet.title }}</div>\n" +
+    "</md-toolbar>\n" +
+    "<md-card>\n" +
+    "    <md-card-title>\n" +
+    "        <md-card-title-text>\n" +
+    "            <span class=\"md-headline\">Emergency Details</span>\n" +
+    "        </md-card-title-text>\n" +
+    "    </md-card-title>\n" +
+    "    <md-card-content layout=\"row\">\n" +
+    "        <div layout=\"column\" flex=\"50\">\n" +
+    "            <md-input-container>\n" +
+    "                <label>{{ metadata.title.label }}</label>\n" +
+    "                <input ng-model=\"worksheet.title\" readonly/>\n" +
+    "            </md-input-container>\n" +
+    "            <md-input-container>\n" +
+    "                <label>{{ metadata.emergency_country.label }}</label>\n" +
+    "                <md-select ng-model=\"worksheet.emergency_country\"\n" +
+    "                           disabled>\n" +
+    "                    <md-option ng-value=\"country.id\"\n" +
+    "                               ng-repeat=\"country in countries\">{{ country.name }}</md-option>\n" +
+    "                </md-select>\n" +
+    "            </md-input-container>\n" +
+    "\n" +
+    "        </div>\n" +
+    "        <div layout=\"column\" flex=\"50\">\n" +
+    "            </md-input-container>\n" +
+    "            <md-input-container flex>\n" +
+    "                <label>{{ metadata.start.label }}</label>\n" +
+    "                <input name=\"start\" ng-model=\"worksheet.start\" readonly/>\n" +
+    "            </md-input-container>\n" +
+    "            <md-input-container flex>\n" +
+    "                <label>{{ metadata.description.label }}</label>\n" +
+    "                <textarea ng-model=\"worksheet.description\" columns=\"1\" readonly></textarea>\n" +
+    "            </md-input-container>\n" +
+    "        </div>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<form name=\"editForm\" ng-submit=\"save()\">\n" +
+    "\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <div layout=\"row\" layout-xs=\"column\">\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <md-input-container flex>\n" +
+    "                    <label>{{ metadata.emergency_classification_rank.label }}</label>\n" +
+    "                    <input name=\"emergency_classification_rank\"\n" +
+    "                           ng-model=\"scorecard.emergency_classification_rank\" readonly/>\n" +
+    "                </md-input-container>\n" +
+    "                <md-input-container flex>\n" +
+    "                    <label>{{ metadata.pre_crisis_vulnerability_rank.label }}</label>\n" +
+    "                    <input name=\"pre_crisis_vulnerability_rank\"\n" +
+    "                           ng-model=\"scorecard.pre_crisis_vulnerability_rank\" readonly/>\n" +
+    "                </md-input-container>\n" +
+    "                <md-input-container flex>\n" +
+    "                    <label>{{ metadata.irc_robustness.label }}</label>\n" +
+    "                    <input name=\"irc_robustness\"\n" +
+    "                           ng-model=\"scorecard.irc_robustness\" readonly/>\n" +
+    "                </md-input-container>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\" layout-wrap style=\"height:100%\">\n" +
+    "                <md-list>\n" +
+    "                    <md-list-item>\n" +
+    "                        <md-checkbox ng-model=\"scorecard.complex\"\n" +
+    "                                     aria-label=\"{{ metadata.complex.label }}\"\n" +
+    "                                     class=\"md-primary\" disabled>\n" +
+    "                        </md-checkbox>\n" +
+    "                        <p>{{ metadata.complex.label }}</p>\n" +
+    "                    </md-list-item>\n" +
+    "                    <md-list-item>\n" +
+    "                        <md-checkbox ng-model=\"scorecard.access\"\n" +
+    "                                     aria-label=\"{{ metadata.access.label }}\"\n" +
+    "                                     class=\"md-primary\" disabled>\n" +
+    "                        </md-checkbox>\n" +
+    "                        <p>\n" +
+    "                            {{ metadata.access.label }}\n" +
+    "                        </p>\n" +
+    "                    </md-list-item>\n" +
+    "                    <md-list-item>\n" +
+    "                        <md-checkbox ng-model=\"scorecard.duration\"\n" +
+    "                                     aria-label=\"{{ metadata.duration.label }}\"\n" +
+    "                                     class=\"md-primary\" disabled>\n" +
+    "                        </md-checkbox>\n" +
+    "                        <p>\n" +
+    "                            {{ metadata.duration.label }}\n" +
+    "                        </p>\n" +
+    "                    </md-list-item>\n" +
+    "                    <md-list-item>\n" +
+    "                        <md-checkbox ng-model=\"scorecard.lack_of_actors\"\n" +
+    "                                     aria-label=\"{{ metadata.lack_of_actors.label }}\"\n" +
+    "                                     class=\"md-primary\" disabled>\n" +
+    "                        </md-checkbox>\n" +
+    "                        <p>\n" +
+    "                            {{ metadata.lack_of_actors.label }}\n" +
+    "\n" +
+    "                        </p>\n" +
+    "                    </md-list-item>\n" +
+    "                </md-list>\n" +
+    "\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<div layout=\"row\" layout-wrap-xs>\n" +
+    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <h4>Decision</h4>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-card-content layout=\"row\" layout-wrap>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Recommended </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.recorded_decision\" disabled>\n" +
+    "                    <md-radio-button value=\"2\">The IRC country program will decide if they will respond\n" +
+    "                    </md-radio-button>\n" +
+    "                    <md-radio-button value=\"3\">IRC will respond</md-radio-button>\n" +
+    "                    <md-radio-button value=\"1\">IRC will not respond</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Taken </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.taken_decision\">\n" +
+    "                    <md-radio-button value=\"2\">The IRC country program will decide if they will respond\n" +
+    "                    </md-radio-button>\n" +
+    "                    <md-radio-button value=\"3\">IRC will respond</md-radio-button>\n" +
+    "                    <md-radio-button value=\"1\">IRC will not respond</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "\n" +
+    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <h4>Stance</h4>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-card-content layout=\"row\" layout-wrap>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Recommended </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.recorded_stance\" disabled>\n" +
+    "                    <md-radio-button value=\"1\">A</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">B</md-radio-button>\n" +
+    "                    <md-radio-button value=\"3\">C</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Taken </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.taken_stance\">\n" +
+    "                    <md-radio-button value=\"1\">A</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">B</md-radio-button>\n" +
+    "                    <md-radio-button value=\"3\">C</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "</div>\n" +
+    "<div layout=\"row\" layout-wrap-xs>\n" +
+    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <h4>Management</h4>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-card-content layout=\"row\" layout-wrap>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Recommended </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.recorded_management\" disabled>\n" +
+    "                    <md-radio-button value=\"1\">Country Program Leads</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">EPRU Leads</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Taken </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.taken_management\">\n" +
+    "                    <md-radio-button value=\"1\">Country Program Leads</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">EPRU Leads</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <h4>Type</h4>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-card-content layout=\"row\" layout-wrap>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Recommended </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.recorded_type\" disabled>\n" +
+    "                    <md-radio-button value=\"1\">One Team</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">Two Teams</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Taken </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.taken_type\">\n" +
+    "                    <md-radio-button value=\"1\">One Team</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">Two Teams</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "\n" +
+    "</div>\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <span class=\"md-headline\">Affirmation or caveats to this decision</span>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-input-container class=\"md-block\">\n" +
+    "            <textarea ng-model=\"scorecard.caveats\" columns=\"1\" md-maxlength=\"10000\" rows=\"5\"></textarea>\n" +
+    "        </md-input-container>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <span class=\"md-headline\">Next Actions: (for response or monitoring)</span>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-input-container class=\"md-block\">\n" +
+    "            <textarea ng-model=\"scorecard.next_actions\" columns=\"1\" md-maxlength=\"10000\" rows=\"5\"></textarea>\n" +
+    "        </md-input-container>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <span class=\"md-headline\">Actions Taken</span>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-input-container class=\"md-block\">\n" +
+    "            <textarea ng-model=\"scorecard.action_taken\" columns=\"1\" md-maxlength=\"10000\" rows=\"5\"></textarea>\n" +
+    "        </md-input-container>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <div layout=\"row\" layout-xs=\"column\">\n" +
+    "            <span flex></span>\n" +
+    "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
+    "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\">Save</md-button>\n" +
+    "        </div>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "</form>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('js/modules/classification/tpl/scorecards.list.html',
+    "<div ng-controller=\"ListScorecardController\">\n" +
+    "    <md-toolbar md-scroll-shrink>\n" +
+    "        <div class=\"md-toolbar-tools\">\n" +
+    "            <h2>\n" +
+    "                <span>Scorecards</span>\n" +
+    "            </h2>\n" +
+    "            <span flex></span>\n" +
+    "        </div>\n" +
+    "    </md-toolbar>\n" +
+    "    <md-card class=\"fill-grid-screen\">\n" +
+    "        <md-card-content style=\"padding: 0\">\n" +
+    "            <div ui-grid=\"gridOptions\" ui-grid-pagination class=\"fill-grid-screen\"></div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "</div>\n"
   );
 
 
@@ -484,7 +705,12 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "</md-card>\n" +
     "<md-card>\n" +
     "    <md-card-content>\n" +
-    "        <div layout=\"row\" layout-xs=\"column\" layout-align=\"end center\">\n" +
+    "        <div layout=\"row\" layout-xs=\"column\">\n" +
+    "            <md-button class=\"md-raised\" ng-click=\"worksheet.$createScorecard()\" ng-if=\"!worksheet.scorecard\">Create Scorecard</md-button>\n" +
+    "            <md-button class=\"md-raised\" ui-sref=\"^.^.scorecards.edit({id: worksheet.scorecard.id})\"\n" +
+    "                       ng-if=\"worksheet.scorecard\">Open Scorecard\n" +
+    "            </md-button>\n" +
+    "            <span flex></span>\n" +
     "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
     "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\">Save</md-button>\n" +
     "        </div>\n" +
@@ -1155,23 +1381,23 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('js/modules/login/tpl/login.html',
-    "<div layout=\"column\" flex id=\"content\" role=\"main\" ng-controller=\"LoginController\">\n" +
-    "    <md-content layout=\"vertical\" flex id=\"content\">\n" +
+    "<div layout=\"column\" flex role=\"main\" ng-controller=\"LoginController\">\n" +
+    "    <md-content layout=\"vertical\" flex id=\"content\" layout-align=\"center center\">\n" +
     "        <div layout=\"row\" layout-align=\"center center\" layout-fill>\n" +
     "            <md-whiteframe class=\"md-whiteframe-z1\" layout=\"column\" flex=\"30\" layout-padding>\n" +
-    "                <form ng-submit=\"login(user.username, user.password)\">\n" +
+    "                <form autocomplete=\"false\" ng-submit=\"login(user.username, user.password)\">\n" +
     "                    <md-content layout=\"column\">\n" +
-    "                        <md-input-container class=\"md-block\">\n" +
+    "                        <md-input-container flex>\n" +
     "                            <label>User name</label>\n" +
     "                            <input ng-model=\"user.username\">\n" +
     "                        </md-input-container>\n" +
-    "                        <md-input-container class=\"md-block\">\n" +
+    "                        <md-input-container flex>\n" +
     "                            <label>Password</label>\n" +
     "                            <input ng-model=\"user.password\" type=\"password\">\n" +
     "                        </md-input-container>\n" +
     "                        <md-input-container layout-align=\"center center\">\n" +
     "                            <div layout=\"row\" layout-sm=\"column\" layout-margin>\n" +
-    "                                <md-button class=\"md-raised\" flex=\"50\" flex-sm=\"100\"\n" +
+    "                                <md-button class=\"md-raised\" flex=\"100\"\n" +
     "                                           ng-click=\"login(user.username, user.password)\">Login\n" +
     "                                </md-button>\n" +
     "                            </div>\n" +
@@ -1186,7 +1412,22 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('js/modules/map/tpl/map.html',
     "<div ng-controller=\"MapController\">\n" +
-    "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
+    "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" legend=\"defaults.legend\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
+    "    <div style=\"margin-top: -55px; margin-left: 10px; position:  absolute\">\n" +
+    "        <div class=\"btn-group\">\n" +
+    "            <button class=\"btn btn-info active\">Scale</button>\n" +
+    "            <button class=\"btn btn-info\">Stance</button>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "    <div style=\"margin-top: -55px; margin-right: 10px; position: absolute; right: 0\">\n" +
+    "        <div class=\"btn-group\">\n" +
+    "            <button class=\"btn btn-default\">Report</button>\n" +
+    "            <button class=\"btn btn-default\">Classiify an emergency</button>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <button class=\"btn btn-default\">More about classification</button>\n" +
+    "\n" +
+    "    </div>\n" +
     "</div>"
   );
 

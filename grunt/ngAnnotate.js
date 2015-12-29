@@ -2,7 +2,7 @@ module.exports = {
     angular: {
 
         files: {
-            'src/js/modules.js': ['src/js/modules.js']
+            'angular/src/js/modules.js': ['angular/src/js/modules.js']
         }
     }
 };

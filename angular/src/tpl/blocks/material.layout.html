@@ -1,47 +1,19 @@
-<md-sidenav md-is-locked-open="$mdMedia('gt-sm')" md-component-id="left"
-            class="md-whiteframe-z2 md-sidenav-left">
-    <md-toolbar md-theme="custom" class="md-hue-1 md-whiteframe-z2">
-        <md-button layout="row" layout-align="center center" class="md-toolbar-tools md-warn"
-                   href="https://github.com/flatlogic/angular-material-dashboard">
-            <h1>{{ app.name }}</h1>
-        </md-button>
-    </md-toolbar>
-    <md-button ng-repeat-start="item in vm.menuItems" layout="column" layout-align="center center"
-               flex class="capitalize" ng-click="vm.selectItem(item)"
-               ui-sref-active="md-warn" ui-sref="{{ item.sref }}">
-        <div hide-sm hide-md class="md-tile-content">
-            <i class="material-icons md-36">{{ item.icon }}</i>
-        </div>
-        <div class="md-tile-content">
-            {{ item.name }}
-        </div>
-    </md-button>
-    <md-divider ng-repeat-end></md-divider>
-    <md-button hide-gt-md flex ng-click="vm.showActions($event)">
-        <div layout="row" class="md-tile-content">
-            Actions
-        </div>
-    </md-button>
-</md-sidenav>
+<div ng-init="app.settings.container = false;" class="md-navbar navbar blue-grey md-whiteframe-z1"
+     data-ng-include=" 'tpl/blocks/material.header.html' ">
+</div>
+<div layout="row">
+    <!-- menu -->
+    <div flex class="bg-white md-whiteframe-z0 md-aside md-content hidden-xs fill-screen"
+         data-ng-include=" 'tpl/blocks/material.aside.html' ">
+    </div>
+    <!-- / menu -->
 
-<div layout="column" flex>
-    <md-toolbar layout="row" layout-align="end center">
-        <md-button hide-sm class="toolbar-button" aria-label="Search">
-            <i class="material-icons">search</i>
-        </md-button>
-        <md-button hide-sm class="toolbar-button" aria-label="Notifications">
-            <i class="material-icons">notifications</i>
-            <span class="notifications-label">7</span>
-        </md-button>
-        <md-button hide-sm class="toolbar-button" aria-label="Settings">
-            <i class="material-icons">settings</i>
-        </md-button>
-        <md-button hide-gt-sm ng-click="toggleItemsList()" aria-label="Menu">
-            <i class="material-icons">menu</i>
-        </md-button>
-    </md-toolbar>
+    <!-- view -->
+    <div flex layout="column">
+        <div ui-butterbar></div>
+        <a href class="off-screen-toggle hide" ui-toggle-class="off-screen" data-target=".md-aside"></a>
 
-    <md-content flex class="page-content">
-        <div ui-view></div>
-    </md-content>
+        <div class="md-content" ui-view></div>
+    </div>
+    <!-- / view -->
 </div>

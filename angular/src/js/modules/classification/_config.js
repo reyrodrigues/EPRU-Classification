@@ -37,15 +37,17 @@ angular.module('app')
             })
             .state('app.scorecards.list', {
                 url: '/list',
-                templateUrl: 'js/modules/classification/tpl/worksheets-list.html'
+                templateUrl: 'js/modules/classification/tpl/scorecards.list.html'
             })
             .state('app.scorecards.create', {
                 url: '/create',
-                templateUrl: 'js/modules/classification/tpl/worksheets-list.html'
+                templateUrl: 'js/modules/classification/tpl/scorecards.edit.html',
+                controller: 'CreateScorecardController'
             })
             .state('app.scorecards.edit', {
                 url: '/edit/:id',
-                templateUrl: 'js/modules/classification/tpl/worksheets-list.html'
+                templateUrl: 'js/modules/classification/tpl/scorecards.edit.html',
+                controller: 'EditScorecardController'
             })
         ;
     });

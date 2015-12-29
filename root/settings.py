@@ -182,3 +182,5 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'classification.auth.IRCADAuthentication'
 ]
+
+#COMPRESS_ENABLED = True

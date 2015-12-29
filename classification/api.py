@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals, division, print_functi
 
 __author__ = 'reyrodrigues'
 
-from rest_framework import viewsets, serializers, filters
+from rest_framework import viewsets, serializers, decorators
 
 from mapping import models
 from django.contrib.auth import get_user_model
@@ -22,27 +22,37 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ('password',)
 
 
-class ScorecardSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Scorecard
-
-
 class WorksheetSerializer(serializers.ModelSerializer):
     emergency_country = serializers.CharField(max_length=100)
     origin_country = serializers.CharField(max_length=100, required=False, allow_blank=True)
     start = DateTimeToDateField()
-    scorecard = ScorecardSerializer(required=False, read_only=True, allow_null=True)
 
     class Meta:
         model = models.Worksheet
 
 
+class ScorecardSerializer(serializers.ModelSerializer):
+    worksheet = WorksheetSerializer(required=False, read_only=True, allow_null=True)
+
+    class Meta:
+        model = models.Scorecard
+
+
+class WorksheetWithScorecardSerializer(WorksheetSerializer):
+    scorecard = ScorecardSerializer(required=False, read_only=True, allow_null=True)
+
+
 class WorksheetViewSet(viewsets.ModelViewSet):
     queryset = models.Worksheet.objects.all()
-    serializer_class = WorksheetSerializer
+    serializer_class = WorksheetWithScorecardSerializer
     ordering_fields = '__all__'
 
+    @decorators.detail_route(methods=['get'])
+    def create_scorecard(self, request, pk=None):
+        worksheet = self.get_queryset().get(id=pk)
+        models.Scorecard.objects.create_from_worksheet(worksheet)
+        serializer = self.get_serializer(worksheet)
+        return Response(serializer.data)
 
 
 class ScorecardViewSet(viewsets.ModelViewSet):

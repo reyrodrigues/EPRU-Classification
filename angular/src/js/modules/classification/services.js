@@ -14,7 +14,11 @@ angular
     .module('app')
 
     .factory('Worksheet', function ($resource) {
-        return $resource('/api/worksheets/:id/', { id: '@id' }, defaultOptions, {
+        var options = angular.extend({
+            createScorecard: {method: 'GET', url: '/api/worksheets/:id/create_scorecard/', transformResponse: MapGet}
+        }, defaultOptions);
+
+        return $resource('/api/worksheets/:id/', { id: '@id' }, options, {
             stripTrailingSlashes: false
         });
     })
@@ -44,6 +48,5 @@ function MapGet(data, headers) {
 }
 function MapRequest(data, headers) {
     var json = angular.toJson(data);
-    console.log(json);
     return json;
 }

@@ -291,6 +291,14 @@ class Worksheet(models.Model, AdminUrlMixin, WorksheetPropertiesMixin):
                                                 verbose_name=_("Pre-crisis population"), )
     irc_robustness = models.IntegerField(default=0, null=True, blank=True, verbose_name=_("IRC robustness"), )
 
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.is_locked = True
+        self.unlocked_by = None
+        self.populate_stats()
+
+        super(Worksheet, self).save(force_insert, force_update, using, update_fields)
+
     def populate_stats(self):
         df = get_reference_data()
 
@@ -343,20 +351,24 @@ class ScorecardManager(models.Manager):
 
 
 DECISION_CHOICES = (
+    (0, 'N/A'),
     (2, 'The IRC country program will decide if they will respond'),
     (3, 'IRC will respond'),
     (1, 'IRC will not respond'),
 )
 MANAGEMENT_CHOICES = (
+    (0, 'N/A'),
     (1, 'Country program leads'),
     (2, 'EPRU leads'),
 )
 
 TEAM_CHOICES = (
+    (0, 'N/A'),
     (1, 'One team'),
     (2, 'Two teams'),
 )
 STANCE_CHOICES = (
+    (0, 'N/A'),
     (1, 'A'),
     (2, 'B'),
     (3, 'C'),

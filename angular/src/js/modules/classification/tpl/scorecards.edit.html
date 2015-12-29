@@ -1,0 +1,255 @@
+<div>
+<md-toolbar md-scroll-shrink>
+    <div class="md-toolbar-tools">Scorecard - {{ worksheet.title }}</div>
+</md-toolbar>
+<md-card>
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">Emergency Details</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content layout="row">
+        <div layout="column" flex="50">
+            <md-input-container>
+                <label>{{ metadata.title.label }}</label>
+                <input ng-model="worksheet.title" readonly/>
+            </md-input-container>
+            <md-input-container>
+                <label>{{ metadata.emergency_country.label }}</label>
+                <md-select ng-model="worksheet.emergency_country"
+                           disabled>
+                    <md-option ng-value="country.id"
+                               ng-repeat="country in countries">{{ country.name }}</md-option>
+                </md-select>
+            </md-input-container>
+
+        </div>
+        <div layout="column" flex="50">
+            </md-input-container>
+            <md-input-container flex>
+                <label>{{ metadata.start.label }}</label>
+                <input name="start" ng-model="worksheet.start" readonly/>
+            </md-input-container>
+            <md-input-container flex>
+                <label>{{ metadata.description.label }}</label>
+                <textarea ng-model="worksheet.description" columns="1" readonly></textarea>
+            </md-input-container>
+        </div>
+    </md-card-content>
+</md-card>
+<form name="editForm" ng-submit="save()">
+
+<md-card>
+    <md-card-content>
+        <div layout="row" layout-xs="column">
+            <div layout="column" flex="50" flex-xs="100">
+                <md-input-container flex>
+                    <label>{{ metadata.emergency_classification_rank.label }}</label>
+                    <input name="emergency_classification_rank"
+                           ng-model="scorecard.emergency_classification_rank" readonly/>
+                </md-input-container>
+                <md-input-container flex>
+                    <label>{{ metadata.pre_crisis_vulnerability_rank.label }}</label>
+                    <input name="pre_crisis_vulnerability_rank"
+                           ng-model="scorecard.pre_crisis_vulnerability_rank" readonly/>
+                </md-input-container>
+                <md-input-container flex>
+                    <label>{{ metadata.irc_robustness.label }}</label>
+                    <input name="irc_robustness"
+                           ng-model="scorecard.irc_robustness" readonly/>
+                </md-input-container>
+            </div>
+            <div layout="column" flex="50" flex-xs="100" layout-wrap style="height:100%">
+                <md-list>
+                    <md-list-item>
+                        <md-checkbox ng-model="scorecard.complex"
+                                     aria-label="{{ metadata.complex.label }}"
+                                     class="md-primary" disabled>
+                        </md-checkbox>
+                        <p>{{ metadata.complex.label }}</p>
+                    </md-list-item>
+                    <md-list-item>
+                        <md-checkbox ng-model="scorecard.access"
+                                     aria-label="{{ metadata.access.label }}"
+                                     class="md-primary" disabled>
+                        </md-checkbox>
+                        <p>
+                            {{ metadata.access.label }}
+                        </p>
+                    </md-list-item>
+                    <md-list-item>
+                        <md-checkbox ng-model="scorecard.duration"
+                                     aria-label="{{ metadata.duration.label }}"
+                                     class="md-primary" disabled>
+                        </md-checkbox>
+                        <p>
+                            {{ metadata.duration.label }}
+                        </p>
+                    </md-list-item>
+                    <md-list-item>
+                        <md-checkbox ng-model="scorecard.lack_of_actors"
+                                     aria-label="{{ metadata.lack_of_actors.label }}"
+                                     class="md-primary" disabled>
+                        </md-checkbox>
+                        <p>
+                            {{ metadata.lack_of_actors.label }}
+
+                        </p>
+                    </md-list-item>
+                </md-list>
+
+            </div>
+        </div>
+    </md-card-content>
+</md-card>
+<div layout="row" layout-wrap-xs>
+    <md-card flex="50" flex-xs="100">
+        <md-card-title>
+            <md-card-title-text>
+                <h4>Decision</h4>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content layout="row" layout-wrap>
+            <div layout="column" flex="50" flex-xs="100">
+                <h5>Recommended </h5>
+                <md-radio-group ng-model="scorecard.recorded_decision" disabled>
+                    <md-radio-button value="2">The IRC country program will decide if they will respond
+                    </md-radio-button>
+                    <md-radio-button value="3">IRC will respond</md-radio-button>
+                    <md-radio-button value="1">IRC will not respond</md-radio-button>
+                </md-radio-group>
+            </div>
+            <div layout="column" flex="50" flex-xs="100">
+                <h5>Taken </h5>
+                <md-radio-group ng-model="scorecard.taken_decision">
+                    <md-radio-button value="2">The IRC country program will decide if they will respond
+                    </md-radio-button>
+                    <md-radio-button value="3">IRC will respond</md-radio-button>
+                    <md-radio-button value="1">IRC will not respond</md-radio-button>
+                </md-radio-group>
+            </div>
+        </md-card-content>
+    </md-card>
+
+    <md-card flex="50" flex-xs="100">
+        <md-card-title>
+            <md-card-title-text>
+                <h4>Stance</h4>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content layout="row" layout-wrap>
+            <div layout="column" flex="50" flex-xs="100">
+                <h5>Recommended </h5>
+                <md-radio-group ng-model="scorecard.recorded_stance" disabled>
+                    <md-radio-button value="1">A</md-radio-button>
+                    <md-radio-button value="2">B</md-radio-button>
+                    <md-radio-button value="3">C</md-radio-button>
+                </md-radio-group>
+            </div>
+            <div layout="column" flex="50" flex-xs="100">
+                <h5>Taken </h5>
+                <md-radio-group ng-model="scorecard.taken_stance">
+                    <md-radio-button value="1">A</md-radio-button>
+                    <md-radio-button value="2">B</md-radio-button>
+                    <md-radio-button value="3">C</md-radio-button>
+                </md-radio-group>
+            </div>
+        </md-card-content>
+    </md-card>
+</div>
+<div layout="row" layout-wrap-xs>
+    <md-card flex="50" flex-xs="100">
+        <md-card-title>
+            <md-card-title-text>
+                <h4>Management</h4>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content layout="row" layout-wrap>
+            <div layout="column" flex="50" flex-xs="100">
+                <h5>Recommended </h5>
+                <md-radio-group ng-model="scorecard.recorded_management" disabled>
+                    <md-radio-button value="1">Country Program Leads</md-radio-button>
+                    <md-radio-button value="2">EPRU Leads</md-radio-button>
+                </md-radio-group>
+            </div>
+            <div layout="column" flex="50" flex-xs="100">
+                <h5>Taken </h5>
+                <md-radio-group ng-model="scorecard.taken_management">
+                    <md-radio-button value="1">Country Program Leads</md-radio-button>
+                    <md-radio-button value="2">EPRU Leads</md-radio-button>
+                </md-radio-group>
+            </div>
+        </md-card-content>
+    </md-card>
+    <md-card flex="50" flex-xs="100">
+        <md-card-title>
+            <md-card-title-text>
+                <h4>Type</h4>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content layout="row" layout-wrap>
+            <div layout="column" flex="50" flex-xs="100">
+                <h5>Recommended </h5>
+                <md-radio-group ng-model="scorecard.recorded_type" disabled>
+                    <md-radio-button value="1">One Team</md-radio-button>
+                    <md-radio-button value="2">Two Teams</md-radio-button>
+                </md-radio-group>
+            </div>
+            <div layout="column" flex="50" flex-xs="100">
+                <h5>Taken </h5>
+                <md-radio-group ng-model="scorecard.taken_type">
+                    <md-radio-button value="1">One Team</md-radio-button>
+                    <md-radio-button value="2">Two Teams</md-radio-button>
+                </md-radio-group>
+            </div>
+        </md-card-content>
+    </md-card>
+
+</div>
+<md-card>
+    <md-card-content>
+        <md-card-title>
+            <md-card-title-text>
+                <span class="md-headline">Affirmation or caveats to this decision</span>
+            </md-card-title-text>
+        </md-card-title>
+        <md-input-container class="md-block">
+            <textarea ng-model="scorecard.caveats" columns="1" md-maxlength="10000" rows="5"></textarea>
+        </md-input-container>
+    </md-card-content>
+</md-card>
+<md-card>
+    <md-card-content>
+        <md-card-title>
+            <md-card-title-text>
+                <span class="md-headline">Next Actions: (for response or monitoring)</span>
+            </md-card-title-text>
+        </md-card-title>
+        <md-input-container class="md-block">
+            <textarea ng-model="scorecard.next_actions" columns="1" md-maxlength="10000" rows="5"></textarea>
+        </md-input-container>
+    </md-card-content>
+</md-card>
+<md-card>
+    <md-card-content>
+        <md-card-title>
+            <md-card-title-text>
+                <span class="md-headline">Actions Taken</span>
+            </md-card-title-text>
+        </md-card-title>
+        <md-input-container class="md-block">
+            <textarea ng-model="scorecard.action_taken" columns="1" md-maxlength="10000" rows="5"></textarea>
+        </md-input-container>
+    </md-card-content>
+</md-card>
+<md-card>
+    <md-card-content>
+        <div layout="row" layout-xs="column">
+            <span flex></span>
+            <md-button class="md-raised md-warn" ui-sref="^.list">Cancel</md-button>
+            <md-button class="md-raised md-primary" ng-click="save()">Save</md-button>
+        </div>
+    </md-card-content>
+</md-card>
+</form>
+</div>

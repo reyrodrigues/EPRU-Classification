@@ -213,7 +213,12 @@
 </md-card>
 <md-card>
     <md-card-content>
-        <div layout="row" layout-xs="column" layout-align="end center">
+        <div layout="row" layout-xs="column">
+            <md-button class="md-raised" ng-click="worksheet.$createScorecard()" ng-if="!worksheet.scorecard">Create Scorecard</md-button>
+            <md-button class="md-raised" ui-sref="^.^.scorecards.edit({id: worksheet.scorecard.id})"
+                       ng-if="worksheet.scorecard">Open Scorecard
+            </md-button>
+            <span flex></span>
             <md-button class="md-raised md-warn" ui-sref="^.list">Cancel</md-button>
             <md-button class="md-raised md-primary" ng-click="save()">Save</md-button>
         </div>

@@ -1,20 +1,20 @@
-<div layout="column" flex id="content" role="main" ng-controller="LoginController">
-    <md-content layout="vertical" flex id="content">
+<div layout="column" flex role="main" ng-controller="LoginController">
+    <md-content layout="vertical" flex id="content" layout-align="center center">
         <div layout="row" layout-align="center center" layout-fill>
             <md-whiteframe class="md-whiteframe-z1" layout="column" flex="30" layout-padding>
-                <form ng-submit="login(user.username, user.password)">
+                <form autocomplete="false" ng-submit="login(user.username, user.password)">
                     <md-content layout="column">
-                        <md-input-container class="md-block">
+                        <md-input-container flex>
                             <label>User name</label>
                             <input ng-model="user.username">
                         </md-input-container>
-                        <md-input-container class="md-block">
+                        <md-input-container flex>
                             <label>Password</label>
                             <input ng-model="user.password" type="password">
                         </md-input-container>
                         <md-input-container layout-align="center center">
                             <div layout="row" layout-sm="column" layout-margin>
-                                <md-button class="md-raised" flex="50" flex-sm="100"
+                                <md-button class="md-raised" flex="100"
                                            ng-click="login(user.username, user.password)">Login
                                 </md-button>
                             </div>

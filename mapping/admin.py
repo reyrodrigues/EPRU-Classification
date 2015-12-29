@@ -219,10 +219,6 @@ class WorksheetAdmin(admin.ModelAdmin):
         if not change:
             obj.generated_by = request.user
 
-        obj.is_locked = True
-        obj.unlocked_by = None
-        obj.populate_stats()
-
         super(WorksheetAdmin, self).save_model(request, obj, form, change)
 
         models.Scorecard.objects.create_from_worksheet(obj)

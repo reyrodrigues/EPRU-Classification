@@ -39,8 +39,10 @@
 
 </head>
 
-<body ng-controller="AppCtrl">
-    <div ui-view layout="row" layout-fill></div>
+<body ng-controller="AppCtrl" layout="row">
+<div layout="column" flex ui-view>
+
+</div>
 <script type="text/javascript">
     window.clientId = '{{ oauth_application.client_id }}';
     window.clientSecret = '{{ oauth_application.client_secret }}';
@@ -87,7 +89,10 @@
     <script src="{% static "libs/angular/query-string/query-string.js" %}"></script>
     <script src="{% static "libs/angular/angular-oauth2/dist/angular-oauth2.js" %}"></script>
 {% endcompress %}
+{% compress js %}
+
 <script src="{% static "js/modules.js" %}"></script>
+{% endcompress %}
 
 </body>
 

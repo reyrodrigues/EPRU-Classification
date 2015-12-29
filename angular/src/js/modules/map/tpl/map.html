@@ -1,3 +1,18 @@
 <div ng-controller="MapController">
-    <leaflet class="fill-screen map" defaults="defaults" lf-center="center" id="map"></leaflet>
+    <leaflet class="fill-screen map" defaults="defaults" legend="defaults.legend" lf-center="center" id="map"></leaflet>
+    <div style="margin-top: -55px; margin-left: 10px; position:  absolute">
+        <div class="btn-group">
+            <button class="btn btn-info active">Scale</button>
+            <button class="btn btn-info">Stance</button>
+        </div>
+    </div>
+    <div style="margin-top: -55px; margin-right: 10px; position: absolute; right: 0">
+        <div class="btn-group">
+            <button class="btn btn-default">Report</button>
+            <button class="btn btn-default">Classiify an emergency</button>
+        </div>
+
+        <button class="btn btn-default">More about classification</button>
+
+    </div>
 </div>

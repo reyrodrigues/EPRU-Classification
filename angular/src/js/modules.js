@@ -59,7 +59,7 @@ var app =
                 }
             }])
 
-            .config(function (OAuthProvider, OAuthTokenProvider, $httpProvider) {
+            .config(["OAuthProvider", "OAuthTokenProvider", "$httpProvider", function (OAuthProvider, OAuthTokenProvider, $httpProvider) {
                 OAuthProvider.configure({
                     baseUrl: (location.origin || location.protocol + '//' + location.host),
                     clientId: window.clientId,
@@ -78,9 +78,9 @@ var app =
 
                 $httpProvider.interceptors.push('authHttpResponseInterceptor');
 
-            })
+            }])
 
-            .run(function ($rootScope, $state, OAuth) {
+            .run(["$rootScope", "$state", "OAuth", function ($rootScope, $state, OAuth) {
                 $rootScope.$on('oauth:error', function (event, rejection) {
                     if ('invalid_grant' === rejection.data.error) {
                         return;
@@ -92,7 +92,7 @@ var app =
 
                     return $state.go('login');
                 });
-            })
+            }])
 
     ;
 
@@ -170,7 +170,7 @@ angular.module('app')
      };
   }]);
 angular.module('app')
-  .directive('uiFocus', function($timeout, $parse) {
+  .directive('uiFocus', ["$timeout", "$parse", function($timeout, $parse) {
     return {
       link: function(scope, element, attr) {
         var model = $parse(attr.uiFocus);
@@ -186,9 +186,9 @@ angular.module('app')
         });
       }
     };
-  });
+  }]);
  angular.module('app')
-  .directive('uiFullscreen', function($document, $window) {
+  .directive('uiFullscreen', ["$document", "$window", function($document, $window) {
     return {
       restrict: 'AC',
       template:'<i class="fa fa-expand fa-fw text"></i><i class="fa fa-compress fa-fw text-active"></i>',
@@ -212,7 +212,7 @@ angular.module('app')
           });
       }
     };
-  });
+  }]);
 
 'use strict';
 
@@ -468,7 +468,7 @@ angular.module('app')
 
 angular.module('app')
     .controller('AppCtrl',
-    function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $mdBottomSheet, $q) {
+    ["$scope", "$rootScope", "$localStorage", "$window", "$mdSidenav", "$mdBottomSheet", "$q", function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $mdBottomSheet, $q) {
         // add 'ie' classes to html
         var isIE = !!navigator.userAgent.match(/MSIE/i);
         isIE && angular.element($window.document.body).addClass('ie');
@@ -512,7 +512,7 @@ angular.module('app')
             });
         }
 
-    }
+    }]
 );
 
 /**
@@ -524,7 +524,7 @@ angular.module('app')
 
 angular.module('app')
     .config(
-    function ($stateProvider) {
+    ["$stateProvider", function ($stateProvider) {
         $stateProvider
             .state('app.worksheets', {
                 url: '/worksheets',
@@ -554,18 +554,20 @@ angular.module('app')
             })
             .state('app.scorecards.list', {
                 url: '/list',
-                templateUrl: 'js/modules/classification/tpl/worksheets-list.html'
+                templateUrl: 'js/modules/classification/tpl/scorecards.list.html'
             })
             .state('app.scorecards.create', {
                 url: '/create',
-                templateUrl: 'js/modules/classification/tpl/worksheets-list.html'
+                templateUrl: 'js/modules/classification/tpl/scorecards.edit.html',
+                controller: 'CreateScorecardController'
             })
             .state('app.scorecards.edit', {
                 url: '/edit/:id',
-                templateUrl: 'js/modules/classification/tpl/worksheets-list.html'
+                templateUrl: 'js/modules/classification/tpl/scorecards.edit.html',
+                controller: 'EditScorecardController'
             })
         ;
-    });
+    }]);
 
 
 /**
@@ -574,7 +576,7 @@ angular.module('app')
 
 angular
     .module('app')
-    .controller('ListWorksheetController', function ($scope, Worksheet, $mdDialog) {
+    .controller('ListWorksheetController', ["$scope", "Worksheet", "$mdDialog", function ($scope, Worksheet, $mdDialog) {
         $scope.gridOptions = {
             paginationPageSizes: [5, 25, 50, 75],
             paginationPageSize: 25,
@@ -587,7 +589,7 @@ angular
                 { 'name': 'title'},
                 { 'name': 'emergency_country'},
                 { 'name': 'origin_country'},
-                { 'name': 'start', type:'date'},
+                { 'name': 'start', type: 'date'},
                 {
                     'name': 'actions',
                     cellTemplate: '<div class="ui-grid-cell-contents" title="TOOLTIP">' +
@@ -619,7 +621,6 @@ angular
 
                 });
             }
-
         };
 
         $scope.deleteWorksheet = function (ev, id) {
@@ -651,8 +652,8 @@ angular
                     console.log(worksheets.count, $scope.gridOptions.totalItems, $scope.gridOptions);
                 });
         }
-    })
-    .controller('EditWorksheetController', function ($scope, $state, $http, Worksheet, $mdToast, $window) {
+    }])
+    .controller('EditWorksheetController', ["$scope", "$state", "$http", "Worksheet", "$mdToast", "$window", function ($scope, $state, $http, Worksheet, $mdToast, $window) {
         $scope.worksheet = Worksheet.get($state.params);
         $scope.metadata = Worksheet.metadata();
 
@@ -675,12 +676,12 @@ angular
                         .position('Top right')
                         .hideDelay(3000)
                 );
-            }).fail(function () {
+            }).catch(function () {
                 console.log('fail', arguments);
             });
         };
-    })
-    .controller('CreateWorksheetController', function ($scope, $state, $http, Worksheet, $mdToast, $window) {
+    }])
+    .controller('CreateWorksheetController', ["$scope", "$state", "$http", "Worksheet", "$mdToast", "$window", function ($scope, $state, $http, Worksheet, $mdToast, $window) {
         $scope.worksheet = new Worksheet();
         $scope.metadata = Worksheet.metadata();
 
@@ -697,11 +698,123 @@ angular
         $scope.save = function () {
             $scope.worksheet.$create().then(function () {
                 $state.go('^.list');
-            }).fail(function () {
+            }).catch(function () {
                 console.log('fail', arguments);
             });
         };
-    })
+    }])
+
+
+    .controller('ListScorecardController', ["$scope", "Scorecard", "$mdDialog", function ($scope, Scorecard, $mdDialog) {
+        $scope.gridOptions = {
+            paginationPageSizes: [5, 25, 50, 75],
+            paginationPageSize: 25,
+            useExternalPagination: true,
+            useExternalSorting: true,
+            customOptions: {limit: 25, offset: 0},
+            columnDefs: [
+                { 'name': 'id' },
+                { 'name': 'worksheet.title', enableSorting: false},
+                { 'name': 'worksheet.emergency_country', enableSorting: false},
+                { 'name': 'worksheet.origin_country', enableSorting: false},
+                { 'name': 'worksheet.start', type: 'date', enableSorting: false},
+                {
+                    'name': 'actions',
+                    cellTemplate: '<div class="ui-grid-cell-contents" title="TOOLTIP">' +
+                        '<a class="btn btn-primary btn-xs" ui-sref="^.edit({id:row.entity.id})">Open</a>&nbsp;' +
+                        '</div>',
+                    enableSorting: false,
+                    enableHiding: false
+                }
+            ],
+            onRegisterApi: function (gridApi) {
+                $scope.gridApi = gridApi;
+                $scope.gridApi.core.on.sortChanged($scope, function (grid, sortColumns) {
+                    var sort = sortColumns.map(function (s) {
+                        return (s.sort.direction == "desc" ? "-" : "") + s.name;
+                    }).join(", ");
+
+                    $scope.gridOptions.customOptions.sort = sort;
+                    getPage();
+
+                });
+                gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
+                    var limit = pageSize * (newPage);
+                    var offset = pageSize * (newPage - 1);
+                    $scope.gridOptions.customOptions.limit = limit;
+                    $scope.gridOptions.customOptions.offset = offset;
+
+                    getPage();
+
+                });
+            }
+        };
+
+        $scope.removeItem = function (ev, id) {
+            // Appending dialog to document.body to cover sidenav in docs app
+            var confirm = $mdDialog.confirm()
+                .title('Confirm')
+                .textContent('Are you sure you would like to delete this record? This operation can\'t be reversed')
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('no');
+            $mdDialog.show(confirm).then(function () {
+                Scorecard.delete({id: id}, getPage);
+            }, function () {
+            });
+        };
+
+        getPage();
+        function getPage() {
+
+            var limit = $scope.gridOptions.customOptions.limit;
+            var offset = $scope.gridOptions.customOptions.offset;
+            var sort = $scope.gridOptions.customOptions.sort;
+            Scorecard.query({limit: limit, offset: offset, ordering: sort })
+                .$promise
+                .then(function (result) {
+                    $scope.gridOptions.totalItems = result.count;
+
+                    $scope.gridOptions.data = result.results;
+                    console.log(result.count, $scope.gridOptions.totalItems, $scope.gridOptions);
+                });
+        }
+    }])
+    .controller('EditScorecardController', ["$scope", "$state", "$http", "Worksheet", "Scorecard", "$mdToast", "$window", "$q", function ($scope, $state, $http, Worksheet, Scorecard, $mdToast, $window, $q) {
+        $scope.scorecard = Scorecard.get($state.params);
+        $scope.scorecard.$promise.then(function (scorecard) {
+            $scope.worksheet = scorecard.worksheet;
+        });
+        $q.all([Worksheet.metadata().$promise, Scorecard.metadata().$promise]).then(function (promises) {
+            $scope.metadata = angular.extend(promises[0].toJSON(), promises[1].toJSON());
+
+            console.log($scope.metadata);
+        });
+
+        $scope.countries = Object.keys(countryList).map(function (k) {
+            return {
+                id: k,
+                name: countryList[k]
+            }
+        }).sort(function (a, b) {
+            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
+        });
+
+        $scope.save = function () {
+            $scope.scorecard.$save()
+                .then(function () {
+                    $window.scrollTo(0, 0);
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('Record Saved!')
+                            .position('Top right')
+                            .hideDelay(3000)
+                    );
+                }).catch(function () {
+                    console.log('fail', arguments);
+                });
+        };
+    }])
 
 ;
 
@@ -720,16 +833,20 @@ var defaultOptions = {
 angular
     .module('app')
 
-    .factory('Worksheet', function ($resource) {
-        return $resource('/api/worksheets/:id/', { id: '@id' }, defaultOptions, {
+    .factory('Worksheet', ["$resource", function ($resource) {
+        var options = angular.extend({
+            createScorecard: {method: 'GET', url: '/api/worksheets/:id/create_scorecard/', transformResponse: MapGet}
+        }, defaultOptions);
+
+        return $resource('/api/worksheets/:id/', { id: '@id' }, options, {
             stripTrailingSlashes: false
         });
-    })
-    .factory('Scorecard', function ($resource) {
+    }])
+    .factory('Scorecard', ["$resource", function ($resource) {
         return $resource('/api/scorecards/:id/', { id: '@id' }, defaultOptions, {
             stripTrailingSlashes: false
         });
-    })
+    }])
 ;
 
 function ReadOption(data, headers) {
@@ -751,19 +868,18 @@ function MapGet(data, headers) {
 }
 function MapRequest(data, headers) {
     var json = angular.toJson(data);
-    console.log(json);
     return json;
 }
 angular.module('app')
     .config(
-        function ($stateProvider) {
+        ["$stateProvider", function ($stateProvider) {
             $stateProvider
                 .state('app.dashboard', {
                     url: '/dashboard',
                     templateUrl: 'js/modules/dashboard/tpl/dashboard.html'
                 })
 
-        });
+        }]);
 
 'use strict';
 
@@ -830,7 +946,7 @@ app
 
 angular.module('app')
     .config(
-        function ($stateProvider) {
+        ["$stateProvider", function ($stateProvider) {
             $stateProvider
                 .state('app.grid', {
                     url: '/grid',
@@ -845,10 +961,10 @@ angular.module('app')
                     templateUrl: 'js/modules/grid/tpl/footable-demo.html'
                 })
                 ;
-        });
+        }]);
 
 app.controller('GridDemoController',
-function ($scope, uiGridConstants) {
+["$scope", "uiGridConstants", function ($scope, uiGridConstants) {
 
 
     $scope.gridOptionsSimple = {
@@ -937,26 +1053,26 @@ function ($scope, uiGridConstants) {
             "company": "Conjurica"
         }]
     };
-});
+}]);
 
 angular.module('app')
 
     .config(
-        function ($stateProvider) {
+        ["$stateProvider", function ($stateProvider) {
             $stateProvider
                 .state('login', {
                     url: '/login',
                     templateUrl: 'js/modules/login/tpl/login.html'
                 })
                 ;
-        });
+        }]);
 
 ;
 
 /**
  * Created by reyrodrigues on 12/26/15.
  */
-app.controller('LoginController', function LoginController($rootScope, $scope, OAuth, $state, $cookies, $localStorage, User) {
+app.controller('LoginController', ["$rootScope", "$scope", "OAuth", "$state", "$cookies", "$localStorage", "User", function LoginController($rootScope, $scope, OAuth, $state, $cookies, $localStorage, User) {
     $cookies.remove('token');
 
     $scope.login = function (username, password) {
@@ -971,7 +1087,7 @@ app.controller('LoginController', function LoginController($rootScope, $scope, O
         });
     };
 
-});
+}]);
 
 /**
  * Created by reyrodrigues on 12/25/15.
@@ -979,11 +1095,11 @@ app.controller('LoginController', function LoginController($rootScope, $scope, O
 angular
     .module('app')
 
-    .factory('User', function ($resource) {
+    .factory('User', ["$resource", function ($resource) {
         return $resource('/api/users/:id', { id: '@id' }, { }, {
             stripTrailingSlashes: false
         });
-    })
+    }])
 ;
 
 /**
@@ -992,24 +1108,29 @@ angular
 
 angular.module('app')
     .config(
-        function ($stateProvider) {
+        ["$stateProvider", function ($stateProvider) {
             $stateProvider
                 .state('app.map', {
                     url: '/map',
                     templateUrl: 'js/modules/map/tpl/map.html'
                 })
                 ;
-        });
+        }]);
 
 /**
  * Created by reyrodrigues on 12/25/15.
  */
 angular
     .module('app')
-    .controller('MapController', function MapController($scope, $http, leafletData, OAuth, Worksheet) {
+    .controller('MapController', ["$scope", "$http", "leafletData", "OAuth", "Worksheet", function MapController($scope, $http, leafletData, OAuth, Worksheet) {
         $scope.defaults = {
             tileLayer: '//stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png',
             path: {
+            },
+            legend: {
+                position: 'topright',
+                colors: [ '#ff0000', '#28c9ff', '#0000ff', '#ecf386' ],
+                labels: [ 'National Cycle Route', 'Regional Cycle Route', 'Local Cycle Network', 'Cycleway' ]
             }
         };
 
@@ -1082,7 +1203,7 @@ angular
                 }
             });
         });
-    });
+    }]);
 
 
 angular.module('app').run(['$templateCache', function($templateCache) {
@@ -1210,100 +1331,43 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('tpl/blocks/material.layout.html',
-    "<md-sidenav md-is-locked-open=\"$mdMedia('gt-sm')\" md-component-id=\"left\"\r" +
+    "<div ng-init=\"app.settings.container = false;\" class=\"md-navbar navbar blue-grey md-whiteframe-z1\"\r" +
     "\n" +
-    "            class=\"md-whiteframe-z2 md-sidenav-left\">\r" +
-    "\n" +
-    "    <md-toolbar md-theme=\"custom\" class=\"md-hue-1 md-whiteframe-z2\">\r" +
-    "\n" +
-    "        <md-button layout=\"row\" layout-align=\"center center\" class=\"md-toolbar-tools md-warn\"\r" +
-    "\n" +
-    "                   href=\"https://github.com/flatlogic/angular-material-dashboard\">\r" +
-    "\n" +
-    "            <h1>{{ app.name }}</h1>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "    </md-toolbar>\r" +
-    "\n" +
-    "    <md-button ng-repeat-start=\"item in vm.menuItems\" layout=\"column\" layout-align=\"center center\"\r" +
-    "\n" +
-    "               flex class=\"capitalize\" ng-click=\"vm.selectItem(item)\"\r" +
-    "\n" +
-    "               ui-sref-active=\"md-warn\" ui-sref=\"{{ item.sref }}\">\r" +
-    "\n" +
-    "        <div hide-sm hide-md class=\"md-tile-content\">\r" +
-    "\n" +
-    "            <i class=\"material-icons md-36\">{{ item.icon }}</i>\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div class=\"md-tile-content\">\r" +
-    "\n" +
-    "            {{ item.name }}\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "    </md-button>\r" +
-    "\n" +
-    "    <md-divider ng-repeat-end></md-divider>\r" +
-    "\n" +
-    "    <md-button hide-gt-md flex ng-click=\"vm.showActions($event)\">\r" +
-    "\n" +
-    "        <div layout=\"row\" class=\"md-tile-content\">\r" +
-    "\n" +
-    "            Actions\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "    </md-button>\r" +
-    "\n" +
-    "</md-sidenav>\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "<div layout=\"column\" flex>\r" +
-    "\n" +
-    "    <md-toolbar layout=\"row\" layout-align=\"end center\">\r" +
-    "\n" +
-    "        <md-button hide-sm class=\"toolbar-button\" aria-label=\"Search\">\r" +
-    "\n" +
-    "            <i class=\"material-icons\">search</i>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "        <md-button hide-sm class=\"toolbar-button\" aria-label=\"Notifications\">\r" +
-    "\n" +
-    "            <i class=\"material-icons\">notifications</i>\r" +
-    "\n" +
-    "            <span class=\"notifications-label\">7</span>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "        <md-button hide-sm class=\"toolbar-button\" aria-label=\"Settings\">\r" +
-    "\n" +
-    "            <i class=\"material-icons\">settings</i>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "        <md-button hide-gt-sm ng-click=\"toggleItemsList()\" aria-label=\"Menu\">\r" +
-    "\n" +
-    "            <i class=\"material-icons\">menu</i>\r" +
-    "\n" +
-    "        </md-button>\r" +
-    "\n" +
-    "    </md-toolbar>\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "    <md-content flex class=\"page-content\">\r" +
-    "\n" +
-    "        <div ui-view></div>\r" +
-    "\n" +
-    "    </md-content>\r" +
+    "     data-ng-include=\" 'tpl/blocks/material.header.html' \">\r" +
     "\n" +
     "</div>\r" +
-    "\n"
+    "\n" +
+    "<div layout=\"row\">\r" +
+    "\n" +
+    "    <!-- menu -->\r" +
+    "\n" +
+    "    <div flex class=\"bg-white md-whiteframe-z0 md-aside md-content hidden-xs fill-screen\"\r" +
+    "\n" +
+    "         data-ng-include=\" 'tpl/blocks/material.aside.html' \">\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "    <!-- / menu -->\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    <!-- view -->\r" +
+    "\n" +
+    "    <div flex layout=\"column\">\r" +
+    "\n" +
+    "        <div ui-butterbar></div>\r" +
+    "\n" +
+    "        <a href class=\"off-screen-toggle hide\" ui-toggle-class=\"off-screen\" data-target=\".md-aside\"></a>\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "        <div class=\"md-content\" ui-view></div>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "    <!-- / view -->\r" +
+    "\n" +
+    "</div>"
   );
 
 
@@ -1352,6 +1416,284 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "\n" +
     "<!-- / list -->\r" +
     "\n"
+  );
+
+
+  $templateCache.put('js/modules/classification/tpl/scorecards.edit.html',
+    "<div>\n" +
+    "<md-toolbar md-scroll-shrink>\n" +
+    "    <div class=\"md-toolbar-tools\">Scorecard - {{ worksheet.title }}</div>\n" +
+    "</md-toolbar>\n" +
+    "<md-card>\n" +
+    "    <md-card-title>\n" +
+    "        <md-card-title-text>\n" +
+    "            <span class=\"md-headline\">Emergency Details</span>\n" +
+    "        </md-card-title-text>\n" +
+    "    </md-card-title>\n" +
+    "    <md-card-content layout=\"row\">\n" +
+    "        <div layout=\"column\" flex=\"50\">\n" +
+    "            <md-input-container>\n" +
+    "                <label>{{ metadata.title.label }}</label>\n" +
+    "                <input ng-model=\"worksheet.title\" readonly/>\n" +
+    "            </md-input-container>\n" +
+    "            <md-input-container>\n" +
+    "                <label>{{ metadata.emergency_country.label }}</label>\n" +
+    "                <md-select ng-model=\"worksheet.emergency_country\"\n" +
+    "                           disabled>\n" +
+    "                    <md-option ng-value=\"country.id\"\n" +
+    "                               ng-repeat=\"country in countries\">{{ country.name }}</md-option>\n" +
+    "                </md-select>\n" +
+    "            </md-input-container>\n" +
+    "\n" +
+    "        </div>\n" +
+    "        <div layout=\"column\" flex=\"50\">\n" +
+    "            </md-input-container>\n" +
+    "            <md-input-container flex>\n" +
+    "                <label>{{ metadata.start.label }}</label>\n" +
+    "                <input name=\"start\" ng-model=\"worksheet.start\" readonly/>\n" +
+    "            </md-input-container>\n" +
+    "            <md-input-container flex>\n" +
+    "                <label>{{ metadata.description.label }}</label>\n" +
+    "                <textarea ng-model=\"worksheet.description\" columns=\"1\" readonly></textarea>\n" +
+    "            </md-input-container>\n" +
+    "        </div>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<form name=\"editForm\" ng-submit=\"save()\">\n" +
+    "\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <div layout=\"row\" layout-xs=\"column\">\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <md-input-container flex>\n" +
+    "                    <label>{{ metadata.emergency_classification_rank.label }}</label>\n" +
+    "                    <input name=\"emergency_classification_rank\"\n" +
+    "                           ng-model=\"scorecard.emergency_classification_rank\" readonly/>\n" +
+    "                </md-input-container>\n" +
+    "                <md-input-container flex>\n" +
+    "                    <label>{{ metadata.pre_crisis_vulnerability_rank.label }}</label>\n" +
+    "                    <input name=\"pre_crisis_vulnerability_rank\"\n" +
+    "                           ng-model=\"scorecard.pre_crisis_vulnerability_rank\" readonly/>\n" +
+    "                </md-input-container>\n" +
+    "                <md-input-container flex>\n" +
+    "                    <label>{{ metadata.irc_robustness.label }}</label>\n" +
+    "                    <input name=\"irc_robustness\"\n" +
+    "                           ng-model=\"scorecard.irc_robustness\" readonly/>\n" +
+    "                </md-input-container>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\" layout-wrap style=\"height:100%\">\n" +
+    "                <md-list>\n" +
+    "                    <md-list-item>\n" +
+    "                        <md-checkbox ng-model=\"scorecard.complex\"\n" +
+    "                                     aria-label=\"{{ metadata.complex.label }}\"\n" +
+    "                                     class=\"md-primary\" disabled>\n" +
+    "                        </md-checkbox>\n" +
+    "                        <p>{{ metadata.complex.label }}</p>\n" +
+    "                    </md-list-item>\n" +
+    "                    <md-list-item>\n" +
+    "                        <md-checkbox ng-model=\"scorecard.access\"\n" +
+    "                                     aria-label=\"{{ metadata.access.label }}\"\n" +
+    "                                     class=\"md-primary\" disabled>\n" +
+    "                        </md-checkbox>\n" +
+    "                        <p>\n" +
+    "                            {{ metadata.access.label }}\n" +
+    "                        </p>\n" +
+    "                    </md-list-item>\n" +
+    "                    <md-list-item>\n" +
+    "                        <md-checkbox ng-model=\"scorecard.duration\"\n" +
+    "                                     aria-label=\"{{ metadata.duration.label }}\"\n" +
+    "                                     class=\"md-primary\" disabled>\n" +
+    "                        </md-checkbox>\n" +
+    "                        <p>\n" +
+    "                            {{ metadata.duration.label }}\n" +
+    "                        </p>\n" +
+    "                    </md-list-item>\n" +
+    "                    <md-list-item>\n" +
+    "                        <md-checkbox ng-model=\"scorecard.lack_of_actors\"\n" +
+    "                                     aria-label=\"{{ metadata.lack_of_actors.label }}\"\n" +
+    "                                     class=\"md-primary\" disabled>\n" +
+    "                        </md-checkbox>\n" +
+    "                        <p>\n" +
+    "                            {{ metadata.lack_of_actors.label }}\n" +
+    "\n" +
+    "                        </p>\n" +
+    "                    </md-list-item>\n" +
+    "                </md-list>\n" +
+    "\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<div layout=\"row\" layout-wrap-xs>\n" +
+    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <h4>Decision</h4>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-card-content layout=\"row\" layout-wrap>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Recommended </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.recorded_decision\" disabled>\n" +
+    "                    <md-radio-button value=\"2\">The IRC country program will decide if they will respond\n" +
+    "                    </md-radio-button>\n" +
+    "                    <md-radio-button value=\"3\">IRC will respond</md-radio-button>\n" +
+    "                    <md-radio-button value=\"1\">IRC will not respond</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Taken </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.taken_decision\">\n" +
+    "                    <md-radio-button value=\"2\">The IRC country program will decide if they will respond\n" +
+    "                    </md-radio-button>\n" +
+    "                    <md-radio-button value=\"3\">IRC will respond</md-radio-button>\n" +
+    "                    <md-radio-button value=\"1\">IRC will not respond</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "\n" +
+    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <h4>Stance</h4>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-card-content layout=\"row\" layout-wrap>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Recommended </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.recorded_stance\" disabled>\n" +
+    "                    <md-radio-button value=\"1\">A</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">B</md-radio-button>\n" +
+    "                    <md-radio-button value=\"3\">C</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Taken </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.taken_stance\">\n" +
+    "                    <md-radio-button value=\"1\">A</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">B</md-radio-button>\n" +
+    "                    <md-radio-button value=\"3\">C</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "</div>\n" +
+    "<div layout=\"row\" layout-wrap-xs>\n" +
+    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <h4>Management</h4>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-card-content layout=\"row\" layout-wrap>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Recommended </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.recorded_management\" disabled>\n" +
+    "                    <md-radio-button value=\"1\">Country Program Leads</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">EPRU Leads</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Taken </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.taken_management\">\n" +
+    "                    <md-radio-button value=\"1\">Country Program Leads</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">EPRU Leads</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <h4>Type</h4>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-card-content layout=\"row\" layout-wrap>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Recommended </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.recorded_type\" disabled>\n" +
+    "                    <md-radio-button value=\"1\">One Team</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">Two Teams</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "                <h5>Taken </h5>\n" +
+    "                <md-radio-group ng-model=\"scorecard.taken_type\">\n" +
+    "                    <md-radio-button value=\"1\">One Team</md-radio-button>\n" +
+    "                    <md-radio-button value=\"2\">Two Teams</md-radio-button>\n" +
+    "                </md-radio-group>\n" +
+    "            </div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "\n" +
+    "</div>\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <span class=\"md-headline\">Affirmation or caveats to this decision</span>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-input-container class=\"md-block\">\n" +
+    "            <textarea ng-model=\"scorecard.caveats\" columns=\"1\" md-maxlength=\"10000\" rows=\"5\"></textarea>\n" +
+    "        </md-input-container>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <span class=\"md-headline\">Next Actions: (for response or monitoring)</span>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-input-container class=\"md-block\">\n" +
+    "            <textarea ng-model=\"scorecard.next_actions\" columns=\"1\" md-maxlength=\"10000\" rows=\"5\"></textarea>\n" +
+    "        </md-input-container>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <md-card-title>\n" +
+    "            <md-card-title-text>\n" +
+    "                <span class=\"md-headline\">Actions Taken</span>\n" +
+    "            </md-card-title-text>\n" +
+    "        </md-card-title>\n" +
+    "        <md-input-container class=\"md-block\">\n" +
+    "            <textarea ng-model=\"scorecard.action_taken\" columns=\"1\" md-maxlength=\"10000\" rows=\"5\"></textarea>\n" +
+    "        </md-input-container>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "<md-card>\n" +
+    "    <md-card-content>\n" +
+    "        <div layout=\"row\" layout-xs=\"column\">\n" +
+    "            <span flex></span>\n" +
+    "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
+    "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\">Save</md-button>\n" +
+    "        </div>\n" +
+    "    </md-card-content>\n" +
+    "</md-card>\n" +
+    "</form>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('js/modules/classification/tpl/scorecards.list.html',
+    "<div ng-controller=\"ListScorecardController\">\n" +
+    "    <md-toolbar md-scroll-shrink>\n" +
+    "        <div class=\"md-toolbar-tools\">\n" +
+    "            <h2>\n" +
+    "                <span>Scorecards</span>\n" +
+    "            </h2>\n" +
+    "            <span flex></span>\n" +
+    "        </div>\n" +
+    "    </md-toolbar>\n" +
+    "    <md-card class=\"fill-grid-screen\">\n" +
+    "        <md-card-content style=\"padding: 0\">\n" +
+    "            <div ui-grid=\"gridOptions\" ui-grid-pagination class=\"fill-grid-screen\"></div>\n" +
+    "        </md-card-content>\n" +
+    "    </md-card>\n" +
+    "</div>\n"
   );
 
 
@@ -1571,7 +1913,12 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "</md-card>\n" +
     "<md-card>\n" +
     "    <md-card-content>\n" +
-    "        <div layout=\"row\" layout-xs=\"column\" layout-align=\"end center\">\n" +
+    "        <div layout=\"row\" layout-xs=\"column\">\n" +
+    "            <md-button class=\"md-raised\" ng-click=\"worksheet.$createScorecard()\" ng-if=\"!worksheet.scorecard\">Create Scorecard</md-button>\n" +
+    "            <md-button class=\"md-raised\" ui-sref=\"^.^.scorecards.edit({id: worksheet.scorecard.id})\"\n" +
+    "                       ng-if=\"worksheet.scorecard\">Open Scorecard\n" +
+    "            </md-button>\n" +
+    "            <span flex></span>\n" +
     "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
     "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\">Save</md-button>\n" +
     "        </div>\n" +
@@ -2242,23 +2589,23 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('js/modules/login/tpl/login.html',
-    "<div layout=\"column\" flex id=\"content\" role=\"main\" ng-controller=\"LoginController\">\n" +
-    "    <md-content layout=\"vertical\" flex id=\"content\">\n" +
+    "<div layout=\"column\" flex role=\"main\" ng-controller=\"LoginController\">\n" +
+    "    <md-content layout=\"vertical\" flex id=\"content\" layout-align=\"center center\">\n" +
     "        <div layout=\"row\" layout-align=\"center center\" layout-fill>\n" +
     "            <md-whiteframe class=\"md-whiteframe-z1\" layout=\"column\" flex=\"30\" layout-padding>\n" +
-    "                <form ng-submit=\"login(user.username, user.password)\">\n" +
+    "                <form autocomplete=\"false\" ng-submit=\"login(user.username, user.password)\">\n" +
     "                    <md-content layout=\"column\">\n" +
-    "                        <md-input-container class=\"md-block\">\n" +
+    "                        <md-input-container flex>\n" +
     "                            <label>User name</label>\n" +
     "                            <input ng-model=\"user.username\">\n" +
     "                        </md-input-container>\n" +
-    "                        <md-input-container class=\"md-block\">\n" +
+    "                        <md-input-container flex>\n" +
     "                            <label>Password</label>\n" +
     "                            <input ng-model=\"user.password\" type=\"password\">\n" +
     "                        </md-input-container>\n" +
     "                        <md-input-container layout-align=\"center center\">\n" +
     "                            <div layout=\"row\" layout-sm=\"column\" layout-margin>\n" +
-    "                                <md-button class=\"md-raised\" flex=\"50\" flex-sm=\"100\"\n" +
+    "                                <md-button class=\"md-raised\" flex=\"100\"\n" +
     "                                           ng-click=\"login(user.username, user.password)\">Login\n" +
     "                                </md-button>\n" +
     "                            </div>\n" +
@@ -2273,7 +2620,22 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('js/modules/map/tpl/map.html',
     "<div ng-controller=\"MapController\">\n" +
-    "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
+    "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" legend=\"defaults.legend\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
+    "    <div style=\"margin-top: -55px; margin-left: 10px; position:  absolute\">\n" +
+    "        <div class=\"btn-group\">\n" +
+    "            <button class=\"btn btn-info active\">Scale</button>\n" +
+    "            <button class=\"btn btn-info\">Stance</button>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "    <div style=\"margin-top: -55px; margin-right: 10px; position: absolute; right: 0\">\n" +
+    "        <div class=\"btn-group\">\n" +
+    "            <button class=\"btn btn-default\">Report</button>\n" +
+    "            <button class=\"btn btn-default\">Classiify an emergency</button>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <button class=\"btn btn-default\">More about classification</button>\n" +
+    "\n" +
+    "    </div>\n" +
     "</div>"
   );
 
