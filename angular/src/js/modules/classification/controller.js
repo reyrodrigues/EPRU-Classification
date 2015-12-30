@@ -131,13 +131,17 @@ angular
 
 
         $scope.save = function () {
-            $scope.worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+            var worksheet = $scope.worksheet.toJSON();
+            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
 
-            $scope.worksheet.$create().then(function () {
-                $state.go('^.list');
-            }).catch(function () {
-                console.log('fail', arguments);
-            });
+            var promise = Worksheet.create(worksheet).$promise;
+
+            promise
+                .then(function (worksheet) {
+                    $state.go('^.^.scorecards.edit', {id: worksheet.scorecard.id });
+                }).catch(function () {
+                    console.log('fail', arguments);
+                });
         };
     })
 
