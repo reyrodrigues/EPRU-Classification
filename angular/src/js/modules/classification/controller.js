@@ -96,6 +96,8 @@ angular
 
 
         $scope.save = function () {
+            $scope.worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
             $scope.worksheet.$save().then(function () {
                 $window.scrollTo(0, 0);
                 $mdToast.show(
@@ -110,7 +112,12 @@ angular
         };
     })
     .controller('CreateWorksheetController', function ($scope, $state, $http, Worksheet, $mdToast, $window) {
-        $scope.worksheet = new Worksheet();
+        $scope.worksheet = new Worksheet({
+            number_deaths: 0,
+            number_injuries: 0,
+            number_affected: 0,
+            number_displaced: 0
+        });
         $scope.metadata = Worksheet.metadata();
 
         $scope.countries = Object.keys(countryList).map(function (k) {
@@ -124,6 +131,8 @@ angular
 
 
         $scope.save = function () {
+            $scope.worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
             $scope.worksheet.$create().then(function () {
                 $state.go('^.list');
             }).catch(function () {

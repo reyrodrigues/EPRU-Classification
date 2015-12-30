@@ -299,6 +299,8 @@ class Worksheet(models.Model, AdminUrlMixin, WorksheetPropertiesMixin):
 
         super(Worksheet, self).save(force_insert, force_update, using, update_fields)
 
+        Scorecard.objects.create_from_worksheet(self)
+
     def populate_stats(self):
         df = get_reference_data()
 

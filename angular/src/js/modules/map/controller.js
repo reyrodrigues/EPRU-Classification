@@ -56,7 +56,12 @@ angular
                     $scope.world.addTo(map);
 
 
-                    $scope.world.on('click', onMapClick);
+                    $scope.world.on('click', onMapClick)
+                    map.off('drag');
+                    map.off('drag', function () {
+                        $scope.world.addTo(map);
+
+                    });
 
                     function onMapClick(e) {
                         var knn = leafletKnn($scope.world);

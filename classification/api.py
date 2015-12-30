@@ -5,7 +5,7 @@ __author__ = 'reyrodrigues'
 from rest_framework import viewsets, serializers, decorators
 
 from mapping import models
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, models as auth_models
 from rest_framework.response import Response
 
 
@@ -16,7 +16,14 @@ class DateTimeToDateField(serializers.DateField):
         return super(DateTimeToDateField, self).to_internal_value(value)
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = auth_models.Group
+
+
 class UserSerializer(serializers.ModelSerializer):
+    groups = GroupSerializer(many=True, read_only=True, required=False, allow_null=True)
+
     class Meta:
         model = get_user_model()
         exclude = ('password',)
@@ -26,10 +33,10 @@ class WorksheetSerializer(serializers.ModelSerializer):
     emergency_country = serializers.CharField(max_length=100)
     origin_country = serializers.CharField(max_length=100, required=False, allow_blank=True)
     start = DateTimeToDateField()
+    pre_crisis_population = serializers.CharField(max_length=100, required=False, allow_null=True)
 
     class Meta:
         model = models.Worksheet
-
 
 class ScorecardSerializer(serializers.ModelSerializer):
     worksheet = WorksheetSerializer(required=False, read_only=True, allow_null=True)

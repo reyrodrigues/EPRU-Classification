@@ -10,7 +10,10 @@
             <md-list>
                 <md-list-item class="md-1-line" ng-repeat="item in scorecards">
                     <a ng-click="open({id: item.id})" href="">{{ item.worksheet.title }}
-                        - {{ item.worksheet.start|fromNow }}</a>
+                        - {{ item.worksheet.start|localDate }}</a>
+                </md-list-item>
+                <md-list-item ng-show="!scorecards.length">
+                    <strong>There are no classified emergencies for this country.</strong>
                 </md-list-item>
             </md-list>
         </md-dialog-content>

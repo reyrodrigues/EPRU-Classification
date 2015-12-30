@@ -4,7 +4,7 @@
 
 angular.module('app')
     .controller('AppCtrl',
-    function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $mdBottomSheet, $q) {
+    function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $state, $q) {
         // add 'ie' classes to html
         var isIE = !!navigator.userAgent.match(/MSIE/i);
         isIE && angular.element($window.document.body).addClass('ie');
@@ -27,11 +27,17 @@ angular.module('app')
             }
         };
 
-        $scope.toggleItemsList = toggleItemsList;
-
-
-        if ($localStorage.currentUser)
+        if ($localStorage.currentUser) {
             $rootScope.currentUser = $localStorage.currentUser;
+            $rootScope.isReviewer =  $rootScope.currentUser.groups.filter(function(g){
+                return g.name == 'Reviewer'
+            }).length > 0;
+            $rootScope.isClassifier =  $rootScope.currentUser.groups.filter(function(g){
+                return g.name == 'Classifier'
+            }).length > 0;
+        } else {
+            $state.go('login');
+        }
 
         function isSmartDevice($window) {
             // Adapted from http://www.detectmobilebrowsers.com
@@ -40,13 +46,6 @@ angular.module('app')
             return (/iPhone|iPod|iPad|Silk|Android|BlackBerry|Opera Mini|IEMobile/).test(ua);
         }
 
-        function toggleItemsList() {
-            var pending = $mdBottomSheet.hide() || $q.when(true);
-
-            pending.then(function () {
-                $mdSidenav('left').toggle();
-            });
-        }
 
     }
 );

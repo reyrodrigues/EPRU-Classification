@@ -711,6 +711,11 @@ angular.module('app')
     return function(date) {
       return moment(date).fromNow();
     }
+  })
+  .filter('localDate', function() {
+    return function(date) {
+      return moment(date).format('L');
+    }
   });
 'use strict';
 
@@ -718,7 +723,7 @@ angular.module('app')
 
 angular.module('app')
     .controller('AppCtrl',
-    ["$scope", "$rootScope", "$localStorage", "$window", "$mdSidenav", "$mdBottomSheet", "$q", function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $mdBottomSheet, $q) {
+    ["$scope", "$rootScope", "$localStorage", "$window", "$mdSidenav", "$state", "$q", function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $state, $q) {
         // add 'ie' classes to html
         var isIE = !!navigator.userAgent.match(/MSIE/i);
         isIE && angular.element($window.document.body).addClass('ie');
@@ -741,11 +746,17 @@ angular.module('app')
             }
         };
 
-        $scope.toggleItemsList = toggleItemsList;
-
-
-        if ($localStorage.currentUser)
+        if ($localStorage.currentUser) {
             $rootScope.currentUser = $localStorage.currentUser;
+            $rootScope.isReviewer =  $rootScope.currentUser.groups.filter(function(g){
+                return g.name == 'Reviewer'
+            }).length > 0;
+            $rootScope.isClassifier =  $rootScope.currentUser.groups.filter(function(g){
+                return g.name == 'Classifier'
+            }).length > 0;
+        } else {
+            $state.go('login');
+        }
 
         function isSmartDevice($window) {
             // Adapted from http://www.detectmobilebrowsers.com
@@ -754,13 +765,6 @@ angular.module('app')
             return (/iPhone|iPod|iPad|Silk|Android|BlackBerry|Opera Mini|IEMobile/).test(ua);
         }
 
-        function toggleItemsList() {
-            var pending = $mdBottomSheet.hide() || $q.when(true);
-
-            pending.then(function () {
-                $mdSidenav('left').toggle();
-            });
-        }
 
     }]
 );
@@ -918,6 +922,8 @@ angular
 
 
         $scope.save = function () {
+            $scope.worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
             $scope.worksheet.$save().then(function () {
                 $window.scrollTo(0, 0);
                 $mdToast.show(
@@ -932,7 +938,12 @@ angular
         };
     }])
     .controller('CreateWorksheetController', ["$scope", "$state", "$http", "Worksheet", "$mdToast", "$window", function ($scope, $state, $http, Worksheet, $mdToast, $window) {
-        $scope.worksheet = new Worksheet();
+        $scope.worksheet = new Worksheet({
+            number_deaths: 0,
+            number_injuries: 0,
+            number_affected: 0,
+            number_displaced: 0
+        });
         $scope.metadata = Worksheet.metadata();
 
         $scope.countries = Object.keys(countryList).map(function (k) {
@@ -946,6 +957,8 @@ angular
 
 
         $scope.save = function () {
+            $scope.worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
             $scope.worksheet.$create().then(function () {
                 $state.go('^.list');
             }).catch(function () {
@@ -1346,7 +1359,7 @@ angular
     .module('app')
 
     .factory('User', ["$resource", function ($resource) {
-        return $resource('/api/users/:id', { id: '@id' }, { }, {
+        return $resource('/api/users/:id/', { id: '@id' }, { }, {
             stripTrailingSlashes: false
         });
     }])
@@ -1425,7 +1438,12 @@ angular
                     $scope.world.addTo(map);
 
 
-                    $scope.world.on('click', onMapClick);
+                    $scope.world.on('click', onMapClick)
+                    map.off('drag');
+                    map.off('drag', function () {
+                        $scope.world.addTo(map);
+
+                    });
 
                     function onMapClick(e) {
                         var knn = leafletKnn($scope.world);
@@ -1803,69 +1821,67 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "\n" +
     "<md-card>\n" +
     "    <md-card-content>\n" +
-    "        <div layout=\"row\" layout-xs=\"column\">\n" +
-    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
-    "                <md-input-container flex>\n" +
-    "                    <label>{{ metadata.emergency_classification_rank.label }}</label>\n" +
-    "                    <input name=\"emergency_classification_rank\"\n" +
-    "                           ng-model=\"scorecard.emergency_classification_rank\" readonly/>\n" +
-    "                </md-input-container>\n" +
-    "                <md-input-container flex>\n" +
-    "                    <label>{{ metadata.pre_crisis_vulnerability_rank.label }}</label>\n" +
-    "                    <input name=\"pre_crisis_vulnerability_rank\"\n" +
-    "                           ng-model=\"scorecard.pre_crisis_vulnerability_rank\" readonly/>\n" +
-    "                </md-input-container>\n" +
-    "                <md-input-container flex>\n" +
-    "                    <label>{{ metadata.irc_robustness.label }}</label>\n" +
-    "                    <input name=\"irc_robustness\"\n" +
-    "                           ng-model=\"scorecard.irc_robustness\" readonly/>\n" +
-    "                </md-input-container>\n" +
-    "            </div>\n" +
-    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\" layout-wrap style=\"height:100%\">\n" +
-    "                <md-list>\n" +
-    "                    <md-list-item>\n" +
-    "                        <md-checkbox ng-model=\"scorecard.complex\"\n" +
-    "                                     aria-label=\"{{ metadata.complex.label }}\"\n" +
-    "                                     class=\"md-primary\" disabled>\n" +
-    "                        </md-checkbox>\n" +
-    "                        <p>{{ metadata.complex.label }}</p>\n" +
-    "                    </md-list-item>\n" +
-    "                    <md-list-item>\n" +
-    "                        <md-checkbox ng-model=\"scorecard.access\"\n" +
-    "                                     aria-label=\"{{ metadata.access.label }}\"\n" +
-    "                                     class=\"md-primary\" disabled>\n" +
-    "                        </md-checkbox>\n" +
-    "                        <p>\n" +
-    "                            {{ metadata.access.label }}\n" +
-    "                        </p>\n" +
-    "                    </md-list-item>\n" +
-    "                    <md-list-item>\n" +
-    "                        <md-checkbox ng-model=\"scorecard.duration\"\n" +
-    "                                     aria-label=\"{{ metadata.duration.label }}\"\n" +
-    "                                     class=\"md-primary\" disabled>\n" +
-    "                        </md-checkbox>\n" +
-    "                        <p>\n" +
-    "                            {{ metadata.duration.label }}\n" +
-    "                        </p>\n" +
-    "                    </md-list-item>\n" +
-    "                    <md-list-item>\n" +
-    "                        <md-checkbox ng-model=\"scorecard.lack_of_actors\"\n" +
-    "                                     aria-label=\"{{ metadata.lack_of_actors.label }}\"\n" +
-    "                                     class=\"md-primary\" disabled>\n" +
-    "                        </md-checkbox>\n" +
-    "                        <p>\n" +
-    "                            {{ metadata.lack_of_actors.label }}\n" +
+    "        <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "            <md-input-container flex>\n" +
+    "                <label>{{ metadata.emergency_classification_rank.label }}</label>\n" +
+    "                <input name=\"emergency_classification_rank\"\n" +
+    "                       ng-model=\"scorecard.emergency_classification_rank\" readonly/>\n" +
+    "            </md-input-container>\n" +
+    "            <md-input-container flex>\n" +
+    "                <label>{{ metadata.pre_crisis_vulnerability_rank.label }}</label>\n" +
+    "                <input name=\"pre_crisis_vulnerability_rank\"\n" +
+    "                       ng-model=\"scorecard.pre_crisis_vulnerability_rank\" readonly/>\n" +
+    "            </md-input-container>\n" +
+    "            <md-input-container flex>\n" +
+    "                <label>{{ metadata.irc_robustness.label }}</label>\n" +
+    "                <input name=\"irc_robustness\"\n" +
+    "                       ng-model=\"scorecard.irc_robustness\" readonly/>\n" +
+    "            </md-input-container>\n" +
+    "        </div>\n" +
+    "        <div layout=\"column\" flex=\"50\" flex-xs=\"100\" layout-wrap style=\"height:100%\">\n" +
+    "            <md-list>\n" +
+    "                <md-list-item>\n" +
+    "                    <md-checkbox ng-model=\"scorecard.complex\"\n" +
+    "                                 aria-label=\"{{ metadata.complex.label }}\"\n" +
+    "                                 class=\"md-primary\" disabled>\n" +
+    "                    </md-checkbox>\n" +
+    "                    <p>{{ metadata.complex.label }}</p>\n" +
+    "                </md-list-item>\n" +
+    "                <md-list-item>\n" +
+    "                    <md-checkbox ng-model=\"scorecard.access\"\n" +
+    "                                 aria-label=\"{{ metadata.access.label }}\"\n" +
+    "                                 class=\"md-primary\" disabled>\n" +
+    "                    </md-checkbox>\n" +
+    "                    <p>\n" +
+    "                        {{ metadata.access.label }}\n" +
+    "                    </p>\n" +
+    "                </md-list-item>\n" +
+    "                <md-list-item>\n" +
+    "                    <md-checkbox ng-model=\"scorecard.duration\"\n" +
+    "                                 aria-label=\"{{ metadata.duration.label }}\"\n" +
+    "                                 class=\"md-primary\" disabled>\n" +
+    "                    </md-checkbox>\n" +
+    "                    <p>\n" +
+    "                        {{ metadata.duration.label }}\n" +
+    "                    </p>\n" +
+    "                </md-list-item>\n" +
+    "                <md-list-item>\n" +
+    "                    <md-checkbox ng-model=\"scorecard.lack_of_actors\"\n" +
+    "                                 aria-label=\"{{ metadata.lack_of_actors.label }}\"\n" +
+    "                                 class=\"md-primary\" disabled>\n" +
+    "                    </md-checkbox>\n" +
+    "                    <p>\n" +
+    "                        {{ metadata.lack_of_actors.label }}\n" +
     "\n" +
-    "                        </p>\n" +
-    "                    </md-list-item>\n" +
-    "                </md-list>\n" +
+    "                    </p>\n" +
+    "                </md-list-item>\n" +
+    "            </md-list>\n" +
     "\n" +
-    "            </div>\n" +
     "        </div>\n" +
     "    </md-card-content>\n" +
     "</md-card>\n" +
-    "<div layout=\"row\" layout-wrap-xs>\n" +
-    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "<div layout=\"row\" layout-xs=\"column\" layout-wrap-xs>\n" +
+    "    <md-card flex>\n" +
     "        <md-card-title>\n" +
     "            <md-card-title-text>\n" +
     "                <h4>Decision</h4>\n" +
@@ -1881,7 +1897,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                    <md-radio-button value=\"1\">IRC will not respond</md-radio-button>\n" +
     "                </md-radio-group>\n" +
     "            </div>\n" +
-    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\" ng-if=\"isReviewer\">\n" +
     "                <h5>Taken </h5>\n" +
     "                <md-radio-group ng-model=\"scorecard.taken_decision\">\n" +
     "                    <md-radio-button value=\"2\">The IRC country program will decide if they will respond\n" +
@@ -1893,7 +1909,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "        </md-card-content>\n" +
     "    </md-card>\n" +
     "\n" +
-    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "    <md-card flex>\n" +
     "        <md-card-title>\n" +
     "            <md-card-title-text>\n" +
     "                <h4>Stance</h4>\n" +
@@ -1908,7 +1924,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                    <md-radio-button value=\"3\">C</md-radio-button>\n" +
     "                </md-radio-group>\n" +
     "            </div>\n" +
-    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\" ng-if=\"isReviewer\">\n" +
     "                <h5>Taken </h5>\n" +
     "                <md-radio-group ng-model=\"scorecard.taken_stance\">\n" +
     "                    <md-radio-button value=\"1\">A</md-radio-button>\n" +
@@ -1919,8 +1935,8 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "        </md-card-content>\n" +
     "    </md-card>\n" +
     "</div>\n" +
-    "<div layout=\"row\" layout-wrap-xs>\n" +
-    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "<div layout=\"row\" layout-xs=\"column\" layout-wrap-xs>\n" +
+    "    <md-card flex>\n" +
     "        <md-card-title>\n" +
     "            <md-card-title-text>\n" +
     "                <h4>Management</h4>\n" +
@@ -1934,7 +1950,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                    <md-radio-button value=\"2\">EPRU Leads</md-radio-button>\n" +
     "                </md-radio-group>\n" +
     "            </div>\n" +
-    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\" ng-if=\"isReviewer\">\n" +
     "                <h5>Taken </h5>\n" +
     "                <md-radio-group ng-model=\"scorecard.taken_management\">\n" +
     "                    <md-radio-button value=\"1\">Country Program Leads</md-radio-button>\n" +
@@ -1943,7 +1959,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "            </div>\n" +
     "        </md-card-content>\n" +
     "    </md-card>\n" +
-    "    <md-card flex=\"50\" flex-xs=\"100\">\n" +
+    "    <md-card flex>\n" +
     "        <md-card-title>\n" +
     "            <md-card-title-text>\n" +
     "                <h4>Type</h4>\n" +
@@ -1957,7 +1973,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                    <md-radio-button value=\"2\">Two Teams</md-radio-button>\n" +
     "                </md-radio-group>\n" +
     "            </div>\n" +
-    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
+    "            <div layout=\"column\" flex=\"50\" flex-xs=\"100\" ng-if=\"isReviewer\">\n" +
     "                <h5>Taken </h5>\n" +
     "                <md-radio-group ng-model=\"scorecard.taken_type\">\n" +
     "                    <md-radio-button value=\"1\">One Team</md-radio-button>\n" +
@@ -1968,7 +1984,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "    </md-card>\n" +
     "\n" +
     "</div>\n" +
-    "<md-card>\n" +
+    "<md-card ng-if=\"isReviewer\">\n" +
     "    <md-card-content>\n" +
     "        <md-card-title>\n" +
     "            <md-card-title-text>\n" +
@@ -1980,7 +1996,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "        </md-input-container>\n" +
     "    </md-card-content>\n" +
     "</md-card>\n" +
-    "<md-card>\n" +
+    "<md-card ng-if=\"isReviewer\">\n" +
     "    <md-card-content>\n" +
     "        <md-card-title>\n" +
     "            <md-card-title-text>\n" +
@@ -1992,7 +2008,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "        </md-input-container>\n" +
     "    </md-card-content>\n" +
     "</md-card>\n" +
-    "<md-card>\n" +
+    "<md-card ng-if=\"isReviewer\">\n" +
     "    <md-card-content>\n" +
     "        <md-card-title>\n" +
     "            <md-card-title-text>\n" +
@@ -2009,7 +2025,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "        <div layout=\"row\" layout-xs=\"column\">\n" +
     "            <span flex></span>\n" +
     "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
-    "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\">Save</md-button>\n" +
+    "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\" ng-if=\"isReviewer\">Save</md-button>\n" +
     "        </div>\n" +
     "    </md-card-content>\n" +
     "</md-card>\n" +
@@ -2099,7 +2115,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "            <label>{{ metadata.description.label }}</label>\n" +
     "            <textarea ng-model=\"worksheet.description\" columns=\"1\" md-maxlength=\"1000\" rows=\"5\"></textarea>\n" +
     "\n" +
-    "            <div class=\"hint\">{{ metadata.description.help_text }}</div>\n" +
+    "            <div class=\"hint hidden-xs\">{{ metadata.description.help_text }}</div>\n" +
     "        </md-input-container>\n" +
     "    </md-card-content>\n" +
     "</md-card>\n" +
@@ -2111,48 +2127,51 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "    </md-card-title>\n" +
     "    <md-card-content>\n" +
     "        <div layout layout-xs=\"column\">\n" +
-    "            <md-input-container flex=\"30\">\n" +
+    "            <md-input-container flex-gt-sm=\"30\" flex>\n" +
     "                <label>{{ metadata.number_deaths.label }}</label>\n" +
     "                <input name=\"number_deaths\" type=\"number\" ng-min=\"0\" ng-required=\"metadata.number_deaths.required\"\n" +
     "                       ng-model=\"worksheet.number_deaths\"/>\n" +
     "            </md-input-container>\n" +
-    "            <md-input-container flex=\"70\">\n" +
+    "            <md-input-container flex>\n" +
     "                <label>{{ metadata.number_deaths_source.label }}</label>\n" +
     "                <input name=\"number_deaths_source\" type=\"text\" ng-required=\"metadata.number_deaths_source.required\"\n" +
     "                       ng-model=\"worksheet.number_deaths_source\"/>\n" +
     "            </md-input-container>\n" +
     "        </div>\n" +
+    "\n" +
     "        <div layout layout-xs=\"column\">\n" +
-    "            <md-input-container flex=\"30\">\n" +
+    "            <md-input-container flex-gt-sm=\"30\" flex>\n" +
     "                <label>{{ metadata.number_injuries.label }}</label>\n" +
     "                <input name=\"number_injuries\" type=\"number\" ng-min=\"0\" ng-required=\"metadata.number_injuries.required\"\n" +
     "                       ng-model=\"worksheet.number_injuries\"/>\n" +
     "            </md-input-container>\n" +
-    "            <md-input-container flex=\"70\">\n" +
+    "            <md-input-container flex>\n" +
     "                <label>{{ metadata.number_injuries_source.label }}</label>\n" +
     "                <input name=\"number_injuries_source\" type=\"text\" ng-required=\"metadata.number_injuries_source.required\"\n" +
     "                       ng-model=\"worksheet.number_injuries_source\"/>\n" +
     "            </md-input-container>\n" +
     "        </div>\n" +
+    "\n" +
     "        <div layout layout-xs=\"column\">\n" +
-    "            <md-input-container flex=\"30\">\n" +
+    "            <md-input-container flex-gt-sm=\"30\" flex>\n" +
     "                <label>{{ metadata.number_affected.label }}</label>\n" +
     "                <input name=\"number_affected\" type=\"number\" ng-min=\"0\" ng-required=\"metadata.number_affected.required\"\n" +
     "                       ng-model=\"worksheet.number_affected\"/>\n" +
     "            </md-input-container>\n" +
-    "            <md-input-container flex=\"70\">\n" +
+    "            <md-input-container flex>\n" +
     "                <label>{{ metadata.number_affected_source.label }}</label>\n" +
     "                <input name=\"number_affected_source\" type=\"text\" ng-required=\"metadata.number_affected_source.required\"\n" +
     "                       ng-model=\"worksheet.number_affected_source\"/>\n" +
     "            </md-input-container>\n" +
     "        </div>\n" +
+    "\n" +
     "        <div layout layout-xs=\"column\">\n" +
-    "            <md-input-container flex=\"30\">\n" +
+    "            <md-input-container flex-gt-sm=\"30\" flex>\n" +
     "                <label>{{ metadata.number_displaced.label }}</label>\n" +
     "                <input name=\"number_displaced\" type=\"number\" ng-min=\"0\" ng-required=\"metadata.number_displaced.required\"\n" +
     "                       ng-model=\"worksheet.number_displaced\"/>\n" +
     "            </md-input-container>\n" +
-    "            <md-input-container flex=\"70\">\n" +
+    "            <md-input-container flex>\n" +
     "                <label>{{ metadata.number_displaced_source.label }}</label>\n" +
     "                <input name=\"number_displaced_source\" type=\"text\"\n" +
     "                       ng-required=\"metadata.number_displaced_source.required\"\n" +
@@ -2254,7 +2273,9 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "<md-card>\n" +
     "    <md-card-content>\n" +
     "        <div layout=\"row\" layout-xs=\"column\">\n" +
-    "            <md-button class=\"md-raised\" ng-click=\"worksheet.$createScorecard()\" ng-if=\"!worksheet.scorecard\">Create Scorecard</md-button>\n" +
+    "            <md-button class=\"md-raised\" ng-click=\"worksheet.$createScorecard()\"\n" +
+    "                       ng-if=\"!worksheet.scorecard && worksheet.id\">Create Scorecard\n" +
+    "            </md-button>\n" +
     "            <md-button class=\"md-raised\" ui-sref=\"^.^.scorecards.edit({id: worksheet.scorecard.id})\"\n" +
     "                       ng-if=\"worksheet.scorecard\">Open Scorecard\n" +
     "            </md-button>\n" +
@@ -2932,7 +2953,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "<div layout=\"column\" flex role=\"main\" ng-controller=\"LoginController\">\n" +
     "    <md-content layout=\"vertical\" flex id=\"content\" layout-align=\"center center\">\n" +
     "        <div layout=\"row\" layout-align=\"center center\" layout-fill>\n" +
-    "            <md-whiteframe class=\"md-whiteframe-z1\" layout=\"column\" flex=\"30\" layout-padding>\n" +
+    "            <md-whiteframe class=\"md-whiteframe-z1\" layout=\"column\" flex=\"30\" flex-xs=\"100\" layout-padding>\n" +
     "                <form autocomplete=\"false\" ng-submit=\"login(user.username, user.password)\">\n" +
     "                    <md-content layout=\"column\">\n" +
     "                        <md-input-container flex>\n" +
@@ -2971,7 +2992,10 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "            <md-list>\n" +
     "                <md-list-item class=\"md-1-line\" ng-repeat=\"item in scorecards\">\n" +
     "                    <a ng-click=\"open({id: item.id})\" href=\"\">{{ item.worksheet.title }}\n" +
-    "                        - {{ item.worksheet.start|fromNow }}</a>\n" +
+    "                        - {{ item.worksheet.start|localDate }}</a>\n" +
+    "                </md-list-item>\n" +
+    "                <md-list-item ng-show=\"!scorecards.length\">\n" +
+    "                    <strong>There are no classified emergencies for this country.</strong>\n" +
     "                </md-list-item>\n" +
     "            </md-list>\n" +
     "        </md-dialog-content>\n" +

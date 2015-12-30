@@ -221,7 +221,6 @@ class WorksheetAdmin(admin.ModelAdmin):
 
         super(WorksheetAdmin, self).save_model(request, obj, form, change)
 
-        models.Scorecard.objects.create_from_worksheet(obj)
 
     def scorecard(self, obj):
         scorecards = list(obj.scorecards.filter(active=True))

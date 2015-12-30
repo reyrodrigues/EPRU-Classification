@@ -7,4 +7,9 @@ angular.module('app')
     return function(date) {
       return moment(date).fromNow();
     }
+  })
+  .filter('localDate', function() {
+    return function(date) {
+      return moment(date).format('L');
+    }
   });
