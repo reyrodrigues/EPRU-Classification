@@ -1,12 +1,12 @@
-<div ng-controller="MapController">
-    <leaflet class="fill-screen map" defaults="defaults" legend="defaults.legend" lf-center="center" id="map"></leaflet>
-    <div style="margin-top: -55px; margin-left: 10px; position:  absolute">
+<div ng-controller="MapController" ng-init="scale=true">
+    <leaflet class="fill-screen map" defaults="defaults" lf-center="center" id="map"></leaflet>
+    <div class="map-button-bar-right">
         <div class="btn-group">
-            <button class="btn btn-info active">Scale</button>
-            <button class="btn btn-info">Stance</button>
+            <button class="btn btn-info" ng-click="scale = true" ng-class="{'active': scale}">Scale</button>
+            <button class="btn btn-info" ng-click="scale = false" ng-class="{'active': !scale}">Stance</button>
         </div>
     </div>
-    <div style="margin-top: -55px; margin-right: 10px; position: absolute; right: 0">
+    <div class="map-button-bar-left hide-xs">
         <div class="btn-group">
             <button class="btn btn-default">Report</button>
             <button class="btn btn-default">Classiify an emergency</button>

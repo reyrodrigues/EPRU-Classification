@@ -21,14 +21,4 @@ def scale(request):
     with open(geojson_boundaries) as f:
         geo = json.load(f)
 
-    df = utils.get_reference_data()
-
-    for f in geo['features']:
-        iso = f['id']
-        country_data = df[(df['ISO'] == iso)].head(1).to_dict('records')
-        if country_data:
-            f['properties'].update({
-                'countryData': country_data[0]
-            })
-
     return HttpResponse(json.dumps(geo), 'application/json')

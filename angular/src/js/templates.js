@@ -1411,15 +1411,15 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('js/modules/map/tpl/map.html',
-    "<div ng-controller=\"MapController\">\n" +
-    "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" legend=\"defaults.legend\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
-    "    <div style=\"margin-top: -55px; margin-left: 10px; position:  absolute\">\n" +
+    "<div ng-controller=\"MapController\" ng-init=\"scale=true\">\n" +
+    "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
+    "    <div class=\"map-button-bar-right\">\n" +
     "        <div class=\"btn-group\">\n" +
-    "            <button class=\"btn btn-info active\">Scale</button>\n" +
-    "            <button class=\"btn btn-info\">Stance</button>\n" +
+    "            <button class=\"btn btn-info\" ng-click=\"scale = true\" ng-class=\"{'active': scale}\">Scale</button>\n" +
+    "            <button class=\"btn btn-info\" ng-click=\"scale = false\" ng-class=\"{'active': !scale}\">Stance</button>\n" +
     "        </div>\n" +
     "    </div>\n" +
-    "    <div style=\"margin-top: -55px; margin-right: 10px; position: absolute; right: 0\">\n" +
+    "    <div class=\"map-button-bar-left hide-xs\">\n" +
     "        <div class=\"btn-group\">\n" +
     "            <button class=\"btn btn-default\">Report</button>\n" +
     "            <button class=\"btn btn-default\">Classiify an emergency</button>\n" +
