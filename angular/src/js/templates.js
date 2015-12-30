@@ -252,6 +252,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "    </md-card-content>\n" +
     "</md-card>\n" +
     "<form name=\"editForm\" ng-submit=\"save()\">\n" +
+    "<input type=\"submit\" style=\"position: absolute; left: -9999px; width: 1px; height: 1px;\"/>\n" +
     "\n" +
     "<md-card>\n" +
     "    <md-card-content>\n" +
@@ -489,7 +490,8 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('js/modules/classification/tpl/worksheets.edit.html',
     "<div>\n" +
-    "<form name=\"editForm\" ng-submit=\"save\">\n" +
+    "<form name=\"form\" onsubmit=\"return true;\" ng-submit=\"save()\" novalidate action=\"\">\n" +
+    "<input type=\"submit\" style=\"position: absolute; left: -9999px; width: 1px; height: 1px;\"/>\n" +
     "<md-toolbar md-scroll-shrink>\n" +
     "    <div class=\"md-toolbar-tools\">Worksheet - {{ worksheet.title }}</div>\n" +
     "</md-toolbar>\n" +
@@ -1389,6 +1391,9 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "        <div layout=\"row\" layout-align=\"center center\" layout-fill>\n" +
     "            <md-whiteframe class=\"md-whiteframe-z1\" layout=\"column\" flex=\"30\" flex-xs=\"100\" layout-padding>\n" +
     "                <form autocomplete=\"false\" ng-submit=\"login(user.username, user.password)\">\n" +
+    "\n" +
+    "                    <input type=\"submit\" style=\"position: absolute; left: -9999px; width: 1px; height: 1px;\"/>\n" +
+    "\n" +
     "                    <md-content layout=\"column\">\n" +
     "                        <md-input-container flex>\n" +
     "                            <label>User name</label>\n" +

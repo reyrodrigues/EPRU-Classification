@@ -1,5 +1,6 @@
 <div>
-<form name="editForm" ng-submit="save">
+<form name="form" onsubmit="return true;" ng-submit="save()" novalidate action="">
+<input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
 <md-toolbar md-scroll-shrink>
     <div class="md-toolbar-tools">Worksheet - {{ worksheet.title }}</div>
 </md-toolbar>

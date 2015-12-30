@@ -11,7 +11,7 @@ app.controller('LoginController', function LoginController($rootScope, $scope, O
                 $localStorage.currentUser = me.toJSON();
                 $rootScope.currentUser = $localStorage.currentUser;
 
-                $state.go('app.map');
+               document.location = '/';
             });
         });
     };

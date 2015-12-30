@@ -96,19 +96,26 @@ angular
 
 
         $scope.save = function () {
-            $scope.worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
 
-            $scope.worksheet.$save().then(function () {
-                $window.scrollTo(0, 0);
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent('Record Saved!')
-                        .position('Top right')
-                        .hideDelay(3000)
-                );
-            }).catch(function () {
-                console.log('fail', arguments);
-            });
+
+            var worksheet = $scope.worksheet.toJSON();
+            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
+            var promise = Worksheet.save(worksheet).$promise;
+
+            promise
+                .then(function (worksheet) {
+                    $window.scrollTo(0, 0);
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('Record Saved!')
+                            .position('Top right')
+                            .hideDelay(3000)
+                    );
+                    $scope.worksheet = worksheet;
+                }).catch(function () {
+                    console.log('fail', arguments);
+                });
         };
     })
     .controller('CreateWorksheetController', function ($scope, $state, $http, Worksheet, $mdToast, $window) {
