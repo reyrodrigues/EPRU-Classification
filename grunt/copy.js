@@ -87,13 +87,7 @@ module.exports = {
             {
                 src:  '**/*.*',
                 dest: 'classification/static/libs/jquery',
-                cwd:  'src/libs/jquery',
-                expand: true
-            },
-            {
-                src:  '**/*.*',
-                dest: 'classification/static/libs/angular',
-                cwd:  'src/libs/angular',
+                cwd:  'angular/src/libs/jquery',
                 expand: true
             },
             {
@@ -114,6 +108,12 @@ module.exports = {
     },
     angular: {
         files: [
+            {
+                src:  '**/*.*',
+                dest: 'classification/static/libs/angular',
+                cwd:  'angular/src/libs/angular',
+                expand: true
+            },
             {expand: true, src: ['css/**/*.css', 'fonts/**', 'libs/**', 'img/**', 'js/modules.js'], cwd: 'angular/src/',   dest: "classification/static/"}
         ]
     }
