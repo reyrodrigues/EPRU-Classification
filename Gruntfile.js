@@ -26,7 +26,7 @@ module.exports = function (grunt) {
     gtx.alias('release-minor', ['bump-only:minor', 'release']);
     gtx.alias('release-major', ['bump-only:major', 'release']);
     gtx.alias('prerelease', ['bump-only:prerelease', 'release']);
-    gtx.alias('dokku:production', ['build:angular']);
+    gtx.alias('dokku:production', ['bower-install-simple', 'build:angular']);
 
     gtx.finalise();
 }
