@@ -1372,7 +1372,7 @@ angular.module('app')
  */
 angular
     .module('app')
-    .controller('MapController', ["$scope", "$http", "leafletData", "OAuth", "Scorecard", "$q", function MapController($scope, $http, leafletData, OAuth, Scorecard, $q) {
+    .controller('MapController', ["$scope", "$http", "leafletData", "OAuth", "Scorecard", "$q", "$mdDialog", function MapController($scope, $http, leafletData, OAuth, Scorecard, $q, $mdDialog) {
         $scope.defaults = {
             tileLayer: '//stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png',
             path: {
@@ -1389,10 +1389,17 @@ angular
             lng: 0.0,
             zoom: 3
         };
+
         var countryMap = isoCountriesCodes.reduce(function (obj, b) {
             obj[b[0]] = b[1];
             return obj;
         }, {});
+
+        var reverseCountryMap = isoCountriesCodes.reduce(function (obj, b) {
+            obj[b[1]] = b[0];
+            return obj;
+        }, {});
+
         $scope.scorecards = Scorecard.query({limit: 1000});
 
         var loaded = $q.all([$http.get('/scale/').then(function (r) {
@@ -1400,6 +1407,7 @@ angular
         }),
             $scope.scorecards.$promise
         ]);
+
 
         $scope.$watch('scale', function showScale(scale) {
             $q.when(loaded).then(function () {
@@ -1412,10 +1420,47 @@ angular
 
                     if ($scope.world)
                         map.removeLayer($scope.world);
+
                     $scope.world = getLayer(results, scale);
-
-
                     $scope.world.addTo(map);
+
+
+                    $scope.world.on('click', onMapClick);
+
+                    function onMapClick(e) {
+                        var knn = leafletKnn($scope.world);
+
+                        var id = e.layer.feature.id;
+                        var props = e.layer.feature.properties;
+
+                        var iso2 = reverseCountryMap[id];
+                        var countryScorecards = $scope.scorecards.results.filter(function (s) {
+                            return s.worksheet.emergency_country == iso2;
+                        });
+
+                        var confirm = $mdDialog.show({
+                            targetEvent: e.originalEvent,
+                            templateUrl: 'js/modules/map/tpl/countryDialog.html',
+                            controller: ["$scope", "$state", "$mdDialog", function DialogController($scope, $state, $mdDialog) {
+                                $scope.props = props;
+                                $scope.scorecards = countryScorecards;
+
+                                $scope.open = function (obj) {
+                                    $mdDialog.hide().then(function () {
+                                        $state.go('app.scorecards.edit', obj)
+                                    });
+                                };
+                                $scope.hide = function () {
+                                    $mdDialog.hide();
+                                };
+                            }],
+                            locals: { props: props, scorecards: countryScorecards }
+                        });
+
+                        confirm.then(function () {
+                        }, function () {
+                        });
+                    }
                 });
             });
 
@@ -1428,8 +1473,10 @@ angular
                     return a.id == countryISO3
                 });
 
-                if (country && country[0]) {
-                    country[0].properties.value = scale ? d.emergency_classification_rank : d.taken_stance;
+                if (country && country.length) {
+                    angular.forEach(country, function (c) {
+                        c.properties.value = scale ? d.emergency_classification_rank : d.taken_stance;
+                    });
                 }
             });
 
@@ -1452,25 +1499,15 @@ angular
             function getColor(d) {
                 var colors = [
                     "#FFFF66",
-                    "#F9F261",
                     "#F2E65C",
-                    "#ECD957",
                     "#E6CC52",
-                    "#DFBF4C",
                     "#D9B247",
-                    "#D3A642",
                     "#CC993D",
-                    "#C68C38",
                     "#C08033",
-                    "#B9732E",
                     "#B36629",
-                    "#AC5924",
                     "#A64D1F",
-                    "#A0401A",
                     "#993314",
-                    "#93260F",
                     "#8D190A",
-                    "#860D05",
                     "#800000"
                 ];
 
@@ -2921,6 +2958,33 @@ angular.module('app').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('js/modules/map/tpl/countryDialog.html',
+    "<md-dialog aria-label=\"{{ props.name }}\" ng-cloak>\n" +
+    "    <form>\n" +
+    "        <md-toolbar>\n" +
+    "            <div class=\"md-toolbar-tools\">\n" +
+    "                <h2>{{ props.name }}</h2>\n" +
+    "                <span flex></span>\n" +
+    "            </div>\n" +
+    "        </md-toolbar>\n" +
+    "        <md-dialog-content>\n" +
+    "            <md-list>\n" +
+    "                <md-list-item class=\"md-1-line\" ng-repeat=\"item in scorecards\">\n" +
+    "                    <a ng-click=\"open({id: item.id})\" href=\"\">{{ item.worksheet.title }}\n" +
+    "                        - {{ item.worksheet.start|fromNow }}</a>\n" +
+    "                </md-list-item>\n" +
+    "            </md-list>\n" +
+    "        </md-dialog-content>\n" +
+    "        <md-dialog-actions layout=\"row\">\n" +
+    "            <md-button ng-click=\"hide()\" style=\"margin-right:20px;\">\n" +
+    "                Close\n" +
+    "            </md-button>\n" +
+    "        </md-dialog-actions>\n" +
+    "    </form>\n" +
+    "</md-dialog>\n"
+  );
+
+
   $templateCache.put('js/modules/map/tpl/map.html',
     "<div ng-controller=\"MapController\" ng-init=\"scale=true\">\n" +
     "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
@@ -2933,7 +2997,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "    <div class=\"map-button-bar-left hide-xs\">\n" +
     "        <div class=\"btn-group\">\n" +
     "            <button class=\"btn btn-default\">Report</button>\n" +
-    "            <button class=\"btn btn-default\">Classiify an emergency</button>\n" +
+    "            <a class=\"btn btn-default\" ui-sref=\"app.worksheets.create\">Classify an emergency</a>\n" +
     "        </div>\n" +
     "\n" +
     "        <button class=\"btn btn-default\">More about classification</button>\n" +

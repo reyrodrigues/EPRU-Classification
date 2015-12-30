@@ -1410,6 +1410,33 @@ angular.module('app').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('js/modules/map/tpl/countryDialog.html',
+    "<md-dialog aria-label=\"{{ props.name }}\" ng-cloak>\n" +
+    "    <form>\n" +
+    "        <md-toolbar>\n" +
+    "            <div class=\"md-toolbar-tools\">\n" +
+    "                <h2>{{ props.name }}</h2>\n" +
+    "                <span flex></span>\n" +
+    "            </div>\n" +
+    "        </md-toolbar>\n" +
+    "        <md-dialog-content>\n" +
+    "            <md-list>\n" +
+    "                <md-list-item class=\"md-1-line\" ng-repeat=\"item in scorecards\">\n" +
+    "                    <a ng-click=\"open({id: item.id})\" href=\"\">{{ item.worksheet.title }}\n" +
+    "                        - {{ item.worksheet.start|fromNow }}</a>\n" +
+    "                </md-list-item>\n" +
+    "            </md-list>\n" +
+    "        </md-dialog-content>\n" +
+    "        <md-dialog-actions layout=\"row\">\n" +
+    "            <md-button ng-click=\"hide()\" style=\"margin-right:20px;\">\n" +
+    "                Close\n" +
+    "            </md-button>\n" +
+    "        </md-dialog-actions>\n" +
+    "    </form>\n" +
+    "</md-dialog>\n"
+  );
+
+
   $templateCache.put('js/modules/map/tpl/map.html',
     "<div ng-controller=\"MapController\" ng-init=\"scale=true\">\n" +
     "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
@@ -1422,7 +1449,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "    <div class=\"map-button-bar-left hide-xs\">\n" +
     "        <div class=\"btn-group\">\n" +
     "            <button class=\"btn btn-default\">Report</button>\n" +
-    "            <button class=\"btn btn-default\">Classiify an emergency</button>\n" +
+    "            <a class=\"btn btn-default\" ui-sref=\"app.worksheets.create\">Classify an emergency</a>\n" +
     "        </div>\n" +
     "\n" +
     "        <button class=\"btn btn-default\">More about classification</button>\n" +

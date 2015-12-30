@@ -7,9 +7,7 @@ from django.http import HttpResponse
 import json
 from django.conf import settings
 import os
-import pandas
-
-from . import utils
+import copy
 
 def map(request):
     return render(request, 'map.html', {}, RequestContext(request))
@@ -20,5 +18,19 @@ def scale(request):
 
     with open(geojson_boundaries) as f:
         geo = json.load(f)
+
+    new_features = []
+    for f in geo['features']:
+        if f['geometry']['type'] == "MultiPolygon":
+            f['geometry']['type'] = "Polygon"
+            coordinates = f['geometry'].pop('coordinates')
+            f['geometry']['coordinates'] = coordinates.pop()
+            for c in coordinates:
+                new_feature = copy.deepcopy(f)
+
+                new_feature['geometry']['coordinates'] = c
+                new_features.append(new_feature)
+
+    geo['features'] += new_features
 
     return HttpResponse(json.dumps(geo), 'application/json')

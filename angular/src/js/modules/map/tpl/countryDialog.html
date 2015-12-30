@@ -1,0 +1,23 @@
+<md-dialog aria-label="{{ props.name }}" ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>{{ props.name }}</h2>
+                <span flex></span>
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <md-list>
+                <md-list-item class="md-1-line" ng-repeat="item in scorecards">
+                    <a ng-click="open({id: item.id})" href="">{{ item.worksheet.title }}
+                        - {{ item.worksheet.start|fromNow }}</a>
+                </md-list-item>
+            </md-list>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button ng-click="hide()" style="margin-right:20px;">
+                Close
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

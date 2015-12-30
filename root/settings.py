@@ -182,4 +182,6 @@ AUTHENTICATION_BACKENDS = [
     'classification.auth.IRCADAuthentication'
 ]
 
+DEBUG = True
+
 #COMPRESS_ENABLED = True
