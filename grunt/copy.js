@@ -85,13 +85,13 @@ module.exports = {
                 expand: true
             },
             {
-                src:  '**',
+                src:  '**/*.*',
                 dest: 'classification/static/libs/jquery',
                 cwd:  'src/libs/jquery',
                 expand: true
             },
             {
-                src:  '**',
+                src:  '**/*.*',
                 dest: 'classification/static/libs/angular',
                 cwd:  'src/libs/angular',
                 expand: true
