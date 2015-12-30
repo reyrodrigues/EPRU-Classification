@@ -6,7 +6,12 @@ module.exports = function (grunt) {
 
         exec('bower install', {}, function (err, stdout, stderr) {
             console.log(stdout);
-            cb();
+            console.log(stderr);
+            exec('npm install', {}, function (err, stdout, stderr) {
+                console.log(stdout);
+                console.log(stderr);
+                cb();
+            });
         });
     });
 
