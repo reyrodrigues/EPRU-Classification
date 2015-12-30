@@ -458,8 +458,9 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "<md-card>\n" +
     "    <md-card-content>\n" +
     "        <div layout=\"row\" layout-xs=\"column\">\n" +
+    "            <md-button class=\"md-raised md-warn\" ng-click=\"sendNotification($event)\" ng-if=\"isClassifier\">Notify</md-button>\n" +
     "            <span flex></span>\n" +
-    "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
+    "            <md-button class=\"md-raised\" ui-sref=\"^.list\">Back to List</md-button>\n" +
     "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\" ng-if=\"isReviewer\">Save</md-button>\n" +
     "        </div>\n" +
     "    </md-card-content>\n" +
@@ -716,7 +717,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                       ng-if=\"worksheet.scorecard\">Open Scorecard\n" +
     "            </md-button>\n" +
     "            <span flex></span>\n" +
-    "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
+    "            <md-button class=\"md-raised\" ui-sref=\"^.list\">Back to List</md-button>\n" +
     "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\">Save</md-button>\n" +
     "        </div>\n" +
     "    </md-card-content>\n" +

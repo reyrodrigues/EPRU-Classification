@@ -228,7 +228,7 @@ angular
                 });
         }
     })
-    .controller('EditScorecardController', function ($scope, $state, $http, Worksheet, Scorecard, $mdToast, $window, $q) {
+    .controller('EditScorecardController', function ($scope, $state, $http, Worksheet, Scorecard, $timeout, $mdToast, $window, $q, $mdDialog) {
         $scope.scorecard = Scorecard.get($state.params);
         $scope.scorecard.$promise.then(function (scorecard) {
             $scope.worksheet = scorecard.worksheet;
@@ -247,6 +247,28 @@ angular
         }).sort(function (a, b) {
             return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
         });
+
+        $scope.sendNotification = function (ev) {
+            $window.scrollTo(0, 0);
+
+            var confirm = $mdDialog.confirm()
+                .targetEvent(ev)
+                .title('Notify Reviewers')
+                .textContent('This will notify all of the reviewers in the system. Are you sure you would like to continue?')
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(function () {
+                $timeout(function () {
+                    $mdToast.simple()
+                        .textContent('Notification Sent!')
+                        .position('Top right')
+
+                        .hideDelay(3000);
+                }, 2000);
+            }, function () {
+            });
+        };
 
         $scope.save = function () {
             $scope.scorecard.$save()

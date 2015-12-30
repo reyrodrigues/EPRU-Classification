@@ -1054,7 +1054,7 @@ angular
                 });
         }
     }])
-    .controller('EditScorecardController', ["$scope", "$state", "$http", "Worksheet", "Scorecard", "$mdToast", "$window", "$q", function ($scope, $state, $http, Worksheet, Scorecard, $mdToast, $window, $q) {
+    .controller('EditScorecardController', ["$scope", "$state", "$http", "Worksheet", "Scorecard", "$timeout", "$mdToast", "$window", "$q", "$mdDialog", function ($scope, $state, $http, Worksheet, Scorecard, $timeout, $mdToast, $window, $q, $mdDialog) {
         $scope.scorecard = Scorecard.get($state.params);
         $scope.scorecard.$promise.then(function (scorecard) {
             $scope.worksheet = scorecard.worksheet;
@@ -1073,6 +1073,28 @@ angular
         }).sort(function (a, b) {
             return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
         });
+
+        $scope.sendNotification = function (ev) {
+            $window.scrollTo(0, 0);
+
+            var confirm = $mdDialog.confirm()
+                .targetEvent(ev)
+                .title('Notify Reviewers')
+                .textContent('This will notify all of the reviewers in the system. Are you sure you would like to continue?')
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(function () {
+                $timeout(function () {
+                    $mdToast.simple()
+                        .textContent('Notification Sent!')
+                        .position('Top right')
+
+                        .hideDelay(3000);
+                }, 2000);
+            }, function () {
+            });
+        };
 
         $scope.save = function () {
             $scope.scorecard.$save()
@@ -2035,8 +2057,9 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "<md-card>\n" +
     "    <md-card-content>\n" +
     "        <div layout=\"row\" layout-xs=\"column\">\n" +
+    "            <md-button class=\"md-raised md-warn\" ng-click=\"sendNotification($event)\" ng-if=\"isClassifier\">Notify</md-button>\n" +
     "            <span flex></span>\n" +
-    "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
+    "            <md-button class=\"md-raised\" ui-sref=\"^.list\">Back to List</md-button>\n" +
     "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\" ng-if=\"isReviewer\">Save</md-button>\n" +
     "        </div>\n" +
     "    </md-card-content>\n" +
@@ -2293,7 +2316,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                       ng-if=\"worksheet.scorecard\">Open Scorecard\n" +
     "            </md-button>\n" +
     "            <span flex></span>\n" +
-    "            <md-button class=\"md-raised md-warn\" ui-sref=\"^.list\">Cancel</md-button>\n" +
+    "            <md-button class=\"md-raised\" ui-sref=\"^.list\">Back to List</md-button>\n" +
     "            <md-button class=\"md-raised md-primary\" ng-click=\"save()\">Save</md-button>\n" +
     "        </div>\n" +
     "    </md-card-content>\n" +
