@@ -4,10 +4,10 @@ module.exports = function (grunt) {
         var exec = require('child_process').exec;
         var cb = this.async();
 
-        exec('bower install', {}, function (err, stdout, stderr) {
+        exec('npm install', {}, function (err, stdout, stderr) {
             console.log(stdout);
             console.log(stderr);
-            exec('npm install', {}, function (err, stdout, stderr) {
+            exec('bower install', {}, function (err, stdout, stderr) {
                 console.log(stdout);
                 console.log(stderr);
                 cb();
