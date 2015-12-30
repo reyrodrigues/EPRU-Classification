@@ -84,7 +84,9 @@
     "videogular-overlay-play": "~0.7.0",
     "videogular-poster": "~0.7.0",
     "waves": "~0.7.2",
-    "angular-oauth2": "~3.0.1"
+    "angular-oauth2": "~3.0.1",
+    "ui-leaflet": "~1.0.0",
+    "angular-simple-logger": "~0.1.5"
   },
   "resolutions": {
     "angular": "^1.4.8",
