@@ -56,7 +56,7 @@ class WorksheetViewSet(viewsets.ModelViewSet):
 
 
 class ScorecardViewSet(viewsets.ModelViewSet):
-    queryset = models.Scorecard.objects.all()
+    queryset = models.Scorecard.objects.filter(active=True)
     serializer_class = ScorecardSerializer
     ordering_fields = '__all__'
 

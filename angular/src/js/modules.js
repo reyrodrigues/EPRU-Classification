@@ -1332,7 +1332,7 @@ app.controller('LoginController', ["$rootScope", "$scope", "OAuth", "$state", "$
                 $localStorage.currentUser = me.toJSON();
                 $rootScope.currentUser = $localStorage.currentUser;
 
-                $state.go('app.dashboard');
+                $state.go('app.map');
             });
         });
     };
@@ -1449,14 +1449,32 @@ angular
                 });
             }
 
-
             function getColor(d) {
-                return  d == 5 ? '#800026' :
-                        d == 4 ? '#800026' :
-                        d == 3 ? '#E31A1C' :
-                        d == 2 ? '#FD8D3C' :
-                        d == 1 ? '#e3e3e3' :
-                    '#c3c3c3';
+                var colors = [
+                    "#FFFF66",
+                    "#F9F261",
+                    "#F2E65C",
+                    "#ECD957",
+                    "#E6CC52",
+                    "#DFBF4C",
+                    "#D9B247",
+                    "#D3A642",
+                    "#CC993D",
+                    "#C68C38",
+                    "#C08033",
+                    "#B9732E",
+                    "#B36629",
+                    "#AC5924",
+                    "#A64D1F",
+                    "#A0401A",
+                    "#993314",
+                    "#93260F",
+                    "#8D190A",
+                    "#860D05",
+                    "#800000"
+                ];
+
+                return  d > 0 ? colors[d] : '#c3c3c3';
             }
 
             function style(feature) {
