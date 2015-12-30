@@ -1,4 +1,18 @@
 module.exports = function (grunt) {
+
+    grunt.registerTask('install', 'install the backend and frontend dependencies', function () {
+        var exec = require('child_process').exec;
+        var cb = this.async();
+        exec('npm install', {}, function (err, stdout, stderr) {
+            console.log(stdout);
+            exec('bower install', {}, function (err, stdout, stderr) {
+                console.log(stdout);
+                cb();
+            });
+        });
+    });
+
+
     var gtx = require('gruntfile-gtx').wrap(grunt);
 
     gtx.loadAuto();
@@ -26,7 +40,7 @@ module.exports = function (grunt) {
     gtx.alias('release-minor', ['bump-only:minor', 'release']);
     gtx.alias('release-major', ['bump-only:major', 'release']);
     gtx.alias('prerelease', ['bump-only:prerelease', 'release']);
-    gtx.alias('dokku:production', ['bower-install-simple', 'build:angular']);
+    gtx.alias('dokku:production', ['install', 'build:angular']);
 
     gtx.finalise();
 }
