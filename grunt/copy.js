@@ -85,19 +85,15 @@ module.exports = {
                 expand: true
             },
             {
-                src:  [
-                 'fullcalendar/dist/fullcalendar.min.js',
-                    'plugins/integration/bootstrap/3/**',
-                    'plugins/integration/bootstrap/images/**',
-                    'footable/dist/footable.all.min.js',
-                    'footable/css/footable.core.css',
-                    'footable/css/fonts/**',
-                    'jquery.easy-pie-chart/dist/jquery.easypiechart.fill.js',
-                    'jquery.sparkline/dist/jquery.sparkline.retina.js',
-
-                ],
+                src:  '**',
                 dest: 'classification/static/libs/jquery',
                 cwd:  'src/libs/jquery',
+                expand: true
+            },
+            {
+                src:  '**',
+                dest: 'classification/static/libs/angular',
+                cwd:  'src/libs/angular',
                 expand: true
             },
             {
