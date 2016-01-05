@@ -244,9 +244,13 @@
 <md-card>
     <md-card-content>
         <div layout="row" layout-xs="column">
-            <md-button class="md-raised md-warn" ng-click="sendNotification($event)" ng-if="isClassifier">Notify</md-button>
+            <md-button class="md-raised md-warn" ng-click="sendNotification($event)" ng-if="isClassifier">Notify
+            </md-button>
+            <md-button class="md-raised" ui-sref="^.^.worksheets.edit({id: scorecard.worksheet.id})"
+                       ng-if="isClassifier">Update
+            </md-button>
             <span flex></span>
-            <md-button class="md-raised" ui-sref="^.list">Back to List</md-button>
+            <md-button class="md-raised" ui-sref="app.map">Back to Map</md-button>
             <md-button class="md-raised md-primary" ng-click="save()" ng-if="isReviewer">Save</md-button>
         </div>
     </md-card-content>

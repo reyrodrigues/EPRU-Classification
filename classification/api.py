@@ -38,6 +38,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Worksheet
 
+
 class ScorecardSerializer(serializers.ModelSerializer):
     worksheet = WorksheetSerializer(required=False, read_only=True, allow_null=True)
 
@@ -53,6 +54,26 @@ class WorksheetViewSet(viewsets.ModelViewSet):
     queryset = models.Worksheet.objects.all()
     serializer_class = WorksheetWithScorecardSerializer
     ordering_fields = '__all__'
+
+    def get_queryset(self):
+        if self.request.user:
+            if not any(self.request.user.groups.filter(name='Classifier')) or not self.request.user.is_superuser:
+                return self.queryset.filter(generated_by=self.request.user)
+            return self.queryset
+        else:
+            return self.queryset.empty()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.validated_data['is_official'] = any(user.groups.filter(name='Classifier'))
+        serializer.validated_data['generated_by'] = user
+        super(WorksheetViewSet, self).perform_create(serializer)
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        serializer.validated_data['is_official'] = any(user.groups.filter(name='Classifier'))
+        super(WorksheetViewSet, self).perform_update(serializer)
+
 
     @decorators.detail_route(methods=['get'])
     def create_scorecard(self, request, pk=None):

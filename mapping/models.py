@@ -231,6 +231,7 @@ class Worksheet(models.Model, AdminUrlMixin, WorksheetPropertiesMixin):
     number_displaced_source = models.CharField(max_length=1000, verbose_name=_("Source"), blank=True, null=True,
                                                help_text=_('Copy the link for the displaced here.'), )
 
+    is_official = models.BooleanField(default=True, verbose_name=_("Has this worksheet done by a classifier?"))
     # decision points
     concurrent_emergencies = models.BooleanField(
         default=False,
