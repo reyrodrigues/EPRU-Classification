@@ -3,7 +3,6 @@ from __future__ import absolute_import, unicode_literals, division, print_functi
 __author__ = 'reyrodrigues'
 
 import pandas
-import os
 import requests
 import StringIO
 from django.conf import settings
@@ -18,10 +17,14 @@ def get_reference_data():
     TO DO: REFACTOR
     :return:
     """
-    classification_reference = os.path.join(settings.BASE_DIR, ('assets/classification.xls'))
+    if 'REFERENCE_CONTENT' not in cache:
+        r = requests.get(settings.REFERENCE_CONTENT_URL)
+        content = r.content
+        cache.set('REFERENCE_CONTENT', content)
+    else:
+        content = cache.get('REFERENCE_CONTENT')
 
-    with open(classification_reference) as f:
-        df = pandas.read_excel(f, 'Reference')
+    df = pandas.read_excel(StringIO.StringIO(content), 'Reference')
 
     return df
 
