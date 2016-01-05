@@ -723,7 +723,7 @@ angular.module('app')
 
 angular.module('app')
     .controller('AppCtrl',
-    ["$scope", "$rootScope", "$localStorage", "$window", "$mdSidenav", "$state", "$q", function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $state, $q) {
+    ["$scope", "$rootScope", "$localStorage", "$window", "$mdSidenav", "$state", "User", function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $state, User) {
         // add 'ie' classes to html
         var isIE = !!navigator.userAgent.match(/MSIE/i);
         isIE && angular.element($window.document.body).addClass('ie');
@@ -746,17 +746,15 @@ angular.module('app')
             }
         };
 
-        if ($localStorage.currentUser) {
-            $rootScope.currentUser = $localStorage.currentUser;
-            $rootScope.isReviewer =  $rootScope.currentUser.groups.filter(function(g){
+        User.get({id: 'me'}).$promise.then(function (currentUser) {
+            $rootScope.currentUser = currentUser.toJSON();
+            $rootScope.isReviewer = $rootScope.currentUser.groups.filter(function (g) {
                 return g.name == 'Reviewer'
             }).length > 0;
-            $rootScope.isClassifier =  $rootScope.currentUser.groups.filter(function(g){
+            $rootScope.isClassifier = $rootScope.currentUser.groups.filter(function (g) {
                 return g.name == 'Classifier'
             }).length > 0;
-        } else {
-            $state.go('login');
-        }
+        });
 
         function isSmartDevice($window) {
             // Adapted from http://www.detectmobilebrowsers.com
@@ -902,83 +900,17 @@ angular
                 .then(function (worksheets) {
                     $scope.gridOptions.totalItems = worksheets.count;
 
-                    $scope.gridOptions.data = worksheets.results;
+                    $scope.gridOptions.data = worksheets.results.map(function(r){
+                        r.emergency_country = countryList[r.emergency_country];
+                        r.origin_country = countryList[r.origin_country];
+                        r.start = moment(r.start).format('L');
+
+                        return r;
+                    });
                     console.log(worksheets.count, $scope.gridOptions.totalItems, $scope.gridOptions);
                 });
         }
     }])
-    .controller('EditWorksheetController', ["$scope", "$state", "$http", "Worksheet", "$mdToast", "$window", function ($scope, $state, $http, Worksheet, $mdToast, $window) {
-        $scope.worksheet = Worksheet.get($state.params);
-        $scope.metadata = Worksheet.metadata();
-
-        $scope.countries = Object.keys(countryList).map(function (k) {
-            return {
-                id: k,
-                name: countryList[k]
-            }
-        }).sort(function (a, b) {
-            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
-        });
-
-
-        $scope.save = function () {
-
-
-            var worksheet = $scope.worksheet.toJSON();
-            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
-
-            var promise = Worksheet.save(worksheet).$promise;
-
-            promise
-                .then(function (worksheet) {
-                    $window.scrollTo(0, 0);
-                    $mdToast.show(
-                        $mdToast.simple()
-                            .textContent('Record Saved!')
-                            .position('Top right')
-                            .hideDelay(3000)
-                    );
-                    $scope.worksheet = worksheet;
-                }).catch(function () {
-                    console.log('fail', arguments);
-                });
-        };
-    }])
-    .controller('CreateWorksheetController', ["$scope", "$state", "$http", "Worksheet", "$mdToast", "$window", function ($scope, $state, $http, Worksheet, $mdToast, $window) {
-        $scope.worksheet = new Worksheet({
-            number_deaths: 0,
-            number_injuries: 0,
-            number_affected: 0,
-            number_displaced: 0
-        });
-        $scope.metadata = Worksheet.metadata();
-
-        $scope.countries = Object.keys(countryList).map(function (k) {
-            return {
-                id: k,
-                name: countryList[k]
-            }
-        }).sort(function (a, b) {
-            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
-        });
-
-
-        $scope.save = function () {
-            var worksheet = $scope.worksheet.toJSON();
-            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
-
-            var promise = Worksheet.create(worksheet).$promise;
-
-            promise
-                .then(function (worksheet) {
-                    $state.go('^.^.scorecards.edit', {id: worksheet.scorecard.id });
-                }).catch(function () {
-                    console.log('fail', arguments);
-                });
-        };
-    }])
-
-
     .controller('ListScorecardController', ["$scope", "Scorecard", "$mdDialog", function ($scope, Scorecard, $mdDialog) {
         $scope.gridOptions = {
             paginationPageSizes: [5, 25, 50, 75],
@@ -988,10 +920,10 @@ angular
             customOptions: {limit: 25, offset: 0},
             columnDefs: [
                 { 'name': 'id' },
-                { 'name': 'worksheet.title', enableSorting: false},
-                { 'name': 'worksheet.emergency_country', enableSorting: false},
-                { 'name': 'worksheet.origin_country', enableSorting: false},
-                { 'name': 'worksheet.start', type: 'date', enableSorting: false},
+                { 'field': 'worksheet.title', name: 'Emergency Name', enableSorting: false},
+                { 'field': 'worksheet.emergency_country', name: 'Emergency Country', enableSorting: false},
+                { 'field': 'worksheet.origin_country', name: 'Country of Origin', enableSorting: false},
+                { 'field': 'worksheet.start', name: 'Start of Crisis', type: 'date', enableSorting: false},
                 {
                     'name': 'actions',
                     cellTemplate: '<div class="ui-grid-cell-contents" title="TOOLTIP">' +
@@ -1049,12 +981,107 @@ angular
                 .then(function (result) {
                     $scope.gridOptions.totalItems = result.count;
 
-                    $scope.gridOptions.data = result.results;
+                    $scope.gridOptions.data = result.results.map(function(r){
+                        r.worksheet.emergency_country = countryList[r.worksheet.emergency_country];
+                        r.worksheet.origin_country = countryList[r.worksheet.origin_country];
+                        r.worksheet.start = moment(r.worksheet.start).format('L');
+
+                        return r;
+                    });
                     console.log(result.count, $scope.gridOptions.totalItems, $scope.gridOptions);
                 });
         }
     }])
-    .controller('EditScorecardController', ["$scope", "$state", "$http", "Worksheet", "Scorecard", "$timeout", "$mdToast", "$window", "$q", "$mdDialog", function ($scope, $state, $http, Worksheet, Scorecard, $timeout, $mdToast, $window, $q, $mdDialog) {
+
+    .controller('EditWorksheetController', ["$scope", "$state", "$http", "Worksheet", "$mdToast", "$window", "$parse", function ($scope, $state, $http, Worksheet, $mdToast, $window, $parse) {
+        $scope.worksheet = Worksheet.get($state.params);
+        $scope.metadata = Worksheet.metadata();
+
+        $scope.countries = Object.keys(countryList).map(function (k) {
+            return {
+                id: k,
+                name: countryList[k]
+            }
+        }).sort(function (a, b) {
+            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
+        });
+
+
+        $scope.save = function () {
+
+            var worksheet = $scope.worksheet.toJSON();
+            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
+            var promise = Worksheet.save(worksheet).$promise;
+
+            promise
+                .then(function (worksheet) {
+                    $window.scrollTo(0, 0);
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('Record Saved!')
+                            .position('Top right')
+                            .hideDelay(3000)
+                    );
+                    $scope.worksheet = worksheet;
+                }).catch(function (resp) {
+                    var serverResponse = resp.data;
+
+                    for (var fieldName in serverResponse) {
+                        var message = serverResponse[fieldName];
+                        var serverMessage = $parse('form.' + fieldName + '.$error.serverMessage');
+
+                        $scope.form.$setValidity(fieldName, false, $scope.form);
+                        serverMessage.assign($scope, serverResponse[fieldName]);
+                    }
+                });
+        };
+    }])
+    .controller('CreateWorksheetController', ["$scope", "$state", "$http", "Worksheet", "$mdToast", "$window", "$parse", function ($scope, $state, $http, Worksheet, $mdToast, $window, $parse) {
+        $scope.worksheet = new Worksheet({
+            number_deaths: 0,
+            number_injuries: 0,
+            number_affected: 0,
+            number_displaced: 0
+        });
+        $scope.metadata = Worksheet.metadata();
+
+        $scope.countries = Object.keys(countryList).map(function (k) {
+            return {
+                id: k,
+                name: countryList[k]
+            }
+        }).sort(function (a, b) {
+            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
+        });
+
+
+        $scope.save = function () {
+            var worksheet = $scope.worksheet.toJSON();
+            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
+            var promise = Worksheet.create(worksheet).$promise;
+
+            promise
+                .then(function (worksheet) {
+                    $state.go('^.^.scorecards.edit', {id: worksheet.scorecard.id });
+                }).catch(function (resp) {
+                    $window.scrollTo(0, 0);
+
+                    var serverResponse = resp.data;
+
+                    for (var fieldName in serverResponse) {
+                        var message = serverResponse[fieldName].join('\n');
+                        var serverMessage = $parse('form.' + fieldName + '.$error.serverMessage');
+
+
+                        $scope.form.$setValidity(fieldName, false, $scope.form);
+                        serverMessage.assign($scope, message);
+                    }
+                });
+        };
+    }])
+    .controller('EditScorecardController', ["$scope", "$state", "$http", "Worksheet", "Scorecard", "$parse", "$timeout", "$mdToast", "$window", "$q", "$mdDialog", function ($scope, $state, $http, Worksheet, Scorecard, $parse, $timeout, $mdToast, $window, $q, $mdDialog) {
         $scope.scorecard = Scorecard.get($state.params);
         $scope.scorecard.$promise.then(function (scorecard) {
             $scope.worksheet = scorecard.worksheet;
@@ -1106,8 +1133,17 @@ angular
                             .position('Top right')
                             .hideDelay(3000)
                     );
-                }).catch(function () {
-                    console.log('fail', arguments);
+                }).catch(function (resp) {
+                    var serverResponse = resp.data;
+
+                    for (var fieldName in serverResponse) {
+                        var message = serverResponse[fieldName].join('\n');
+                        var serverMessage = $parse('form.' + fieldName + '.$error.serverMessage');
+
+
+                        $scope.form.$setValidity(fieldName, false, $scope.form);
+                        serverMessage.assign($scope, message);
+                    }
                 });
         };
     }])
@@ -1416,6 +1452,33 @@ angular.module('app')
 /**
  * Created by reyrodrigues on 12/25/15.
  */
+
+var colors = [
+    "#FFFF66",
+    "#F2E65C",
+    "#E6CC52",
+    "#D9B247",
+    "#CC993D",
+    "#C08033",
+    "#B36629",
+    "#A64D1F",
+    "#993314",
+    "#8D190A",
+    "#800000"
+];
+var stanceColors = [
+    "#FFFF66",
+    "#F2E65C",
+    "#C08033",
+    "#8D190A",
+];
+var stanceWording = [
+    "#FFFF66",
+    "A",
+    "B",
+    "C",
+];
+
 angular
     .module('app')
     .controller('MapController', ["$scope", "$http", "leafletData", "OAuth", "Scorecard", "$q", "$mdDialog", function MapController($scope, $http, leafletData, OAuth, Scorecard, $q, $mdDialog) {
@@ -1427,7 +1490,9 @@ angular
                 position: 'topright',
                 colors: [ '#ff0000', '#28c9ff', '#0000ff', '#ecf386' ],
                 labels: [ 'National Cycle Route', 'Regional Cycle Route', 'Local Cycle Network', 'Cycleway' ]
-            }
+            },
+            minZoom: 3,
+            worldCopyJump: true
         };
 
         $scope.center = {
@@ -1435,6 +1500,10 @@ angular
             lng: 0.0,
             zoom: 3
         };
+
+        $scope.colors = colors;
+        $scope.stanceColors = stanceColors;
+        $scope.stanceWording = stanceWording;
 
         var countryMap = isoCountriesCodes.reduce(function (obj, b) {
             obj[b[0]] = b[1];
@@ -1548,21 +1617,11 @@ angular
             }
 
             function getColor(d) {
-                var colors = [
-                    "#FFFF66",
-                    "#F2E65C",
-                    "#E6CC52",
-                    "#D9B247",
-                    "#CC993D",
-                    "#C08033",
-                    "#B36629",
-                    "#A64D1F",
-                    "#993314",
-                    "#8D190A",
-                    "#800000"
-                ];
-
-                return  d > 0 ? colors[d] : '#c3c3c3';
+                if (scale) {
+                    return  d > 0 ? colors[d] : '#c3c3c3';
+                } else {
+                    return  d > 0 ? stanceColors[d] : '#c3c3c3';
+                }
             }
 
             function style(feature) {
@@ -1850,7 +1909,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "        </div>\n" +
     "    </md-card-content>\n" +
     "</md-card>\n" +
-    "<form name=\"editForm\" ng-submit=\"save()\">\n" +
+    "<form name=\"form\" ng-submit=\"save()\">\n" +
     "<input type=\"submit\" style=\"position: absolute; left: -9999px; width: 1px; height: 1px;\"/>\n" +
     "\n" +
     "<md-card>\n" +
@@ -2090,7 +2149,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('js/modules/classification/tpl/worksheets.edit.html',
     "<div>\n" +
-    "<form name=\"form\" onsubmit=\"return true;\" ng-submit=\"save()\" novalidate action=\"\">\n" +
+    "<form name=\"form\" ng-submit=\"save()\">\n" +
     "<input type=\"submit\" style=\"position: absolute; left: -9999px; width: 1px; height: 1px;\"/>\n" +
     "<md-toolbar md-scroll-shrink>\n" +
     "    <div class=\"md-toolbar-tools\">Worksheet - {{ worksheet.title }}</div>\n" +
@@ -2106,7 +2165,11 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "            <label>{{ metadata.title.label }}</label>\n" +
     "            <input name=\"title\" ng-required=\"metadata.title.required\" ng-model=\"worksheet.title\"/>\n" +
     "\n" +
-    "            <div class=\"hint\">{{ metadata.title.help_text }}</div>\n" +
+    "            <div class=\"hint\" ng-hide=\"form.title.$error.serverMessage\">{{ metadata.title.help_text }}</div>\n" +
+    "\n" +
+    "            <div ng-messages=\"form.title.$error\">\n" +
+    "                <div ng-each=\"form.title.$error.serverMessage\">{{ form.title.$error.serverMessage}}</div>\n" +
+    "            </div>\n" +
     "        </md-input-container>\n" +
     "        <div layout>\n" +
     "            <md-input-container flex>\n" +
@@ -2118,7 +2181,12 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                    <md-option ng-value=\"country.id\"\n" +
     "                               ng-repeat=\"country in countries\">{{ country.name }}</md-option>\n" +
     "                </md-select>\n" +
-    "                <div class=\"hint\">{{ metadata.emergency_country.help_text }}</div>\n" +
+    "                <div class=\"hint\"\n" +
+    "                     ng-hide=\"form.emergency_country.$error.serverMessage\">{{ metadata.emergency_country.help_text }}</div>\n" +
+    "                <div ng-messages=\"form.emergency_country.$error\">\n" +
+    "                    <div ng-each=\"form.emergency_country.$error.serverMessage\">\n" +
+    "                        {{ form.emergency_country.$error.serverMessage}}</div>\n" +
+    "                </div>\n" +
     "            </md-input-container>\n" +
     "            <md-input-container flex>\n" +
     "                <label>{{ metadata.origin_country.label }}</label>\n" +
@@ -2129,13 +2197,24 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                    <md-option ng-value=\"country.id\"\n" +
     "                               ng-repeat=\"country in countries\">{{ country.name }}</md-option>\n" +
     "                </md-select>\n" +
-    "                <div class=\"hint\">{{ metadata.origin_country.help_text }}</div>\n" +
+    "                <div class=\"hint\"\n" +
+    "                     ng-hide=\"form.origin_country.$error.serverMessage\">{{ metadata.origin_country.help_text }}</div>\n" +
+    "                <div ng-messages=\"form.origin_country.$error\">\n" +
+    "                    <div ng-each=\"form.origin_country.$error.serverMessage\">\n" +
+    "                        {{ form.origin_country.$error.serverMessage}}</div>\n" +
+    "                </div>\n" +
     "            </md-input-container>\n" +
     "        </div>\n" +
     "        <h5>{{ metadata.start.label }}:</h5>\n" +
     "\n" +
     "        <div layout>\n" +
     "            <md-datepicker ng-model=\"worksheet.start\" flex></md-datepicker>\n" +
+    "            <div class=\"hint\"\n" +
+    "                 ng-hide=\"form.start.$error.serverMessage\">{{ metadata.start.help_text }}</div>\n" +
+    "            <div ng-messages=\"form.start.$error\">\n" +
+    "                <div ng-each=\"form.start.$error.serverMessage\">\n" +
+    "                    {{ form.start.$error.serverMessage}}</div>\n" +
+    "            </div>\n" +
     "        </div>\n" +
     "        <div layout>\n" +
     "            <md-input-container>\n" +
@@ -2151,7 +2230,12 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "            <label>{{ metadata.description.label }}</label>\n" +
     "            <textarea ng-model=\"worksheet.description\" columns=\"1\" md-maxlength=\"1000\" rows=\"5\"></textarea>\n" +
     "\n" +
-    "            <div class=\"hint hidden-xs\">{{ metadata.description.help_text }}</div>\n" +
+    "            <div class=\"hint hidden-xs\"\n" +
+    "                 ng-hide=\"form.description.$error.serverMessage\">{{ metadata.description.help_text }}</div>\n" +
+    "            <div ng-messages=\"form.description.$error\">\n" +
+    "                <div ng-each=\"form.description.$error.serverMessage\">\n" +
+    "                    {{ form.description.$error.serverMessage}}</div>\n" +
+    "            </div>\n" +
     "        </md-input-container>\n" +
     "    </md-card-content>\n" +
     "</md-card>\n" +
@@ -2167,6 +2251,11 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                <label>{{ metadata.number_deaths.label }}</label>\n" +
     "                <input name=\"number_deaths\" type=\"number\" ng-min=\"0\" ng-required=\"metadata.number_deaths.required\"\n" +
     "                       ng-model=\"worksheet.number_deaths\"/>\n" +
+    "\n" +
+    "                <div ng-messages=\"form.number_deaths.$error\">\n" +
+    "                    <div ng-each=\"form.number_deaths.$error.serverMessage\">\n" +
+    "                        {{ form.number_deaths.$error.serverMessage}}</div>\n" +
+    "                </div>\n" +
     "            </md-input-container>\n" +
     "            <md-input-container flex>\n" +
     "                <label>{{ metadata.number_deaths_source.label }}</label>\n" +
@@ -2180,6 +2269,11 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                <label>{{ metadata.number_injuries.label }}</label>\n" +
     "                <input name=\"number_injuries\" type=\"number\" ng-min=\"0\" ng-required=\"metadata.number_injuries.required\"\n" +
     "                       ng-model=\"worksheet.number_injuries\"/>\n" +
+    "\n" +
+    "                <div ng-messages=\"form.number_injuries.$error\">\n" +
+    "                    <div ng-each=\"form.number_injuries.$error.serverMessage\">\n" +
+    "                        {{ form.number_deaths.$error.serverMessage}}</div>\n" +
+    "                </div>\n" +
     "            </md-input-container>\n" +
     "            <md-input-container flex>\n" +
     "                <label>{{ metadata.number_injuries_source.label }}</label>\n" +
@@ -2193,6 +2287,11 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                <label>{{ metadata.number_affected.label }}</label>\n" +
     "                <input name=\"number_affected\" type=\"number\" ng-min=\"0\" ng-required=\"metadata.number_affected.required\"\n" +
     "                       ng-model=\"worksheet.number_affected\"/>\n" +
+    "\n" +
+    "                <div ng-messages=\"form.number_affected.$error\">\n" +
+    "                    <div ng-each=\"form.number_affected.$error.serverMessage\">\n" +
+    "                        {{ form.number_affected.$error.serverMessage}}</div>\n" +
+    "                </div>\n" +
     "            </md-input-container>\n" +
     "            <md-input-container flex>\n" +
     "                <label>{{ metadata.number_affected_source.label }}</label>\n" +
@@ -2206,6 +2305,11 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                <label>{{ metadata.number_displaced.label }}</label>\n" +
     "                <input name=\"number_displaced\" type=\"number\" ng-min=\"0\" ng-required=\"metadata.number_displaced.required\"\n" +
     "                       ng-model=\"worksheet.number_displaced\"/>\n" +
+    "\n" +
+    "                <div ng-messages=\"form.number_displaced.$error\">\n" +
+    "                    <div ng-each=\"form.number_displaced.$error.serverMessage\">\n" +
+    "                        {{ form.number_displaced.$error.serverMessage}}</div>\n" +
+    "                </div>\n" +
     "            </md-input-container>\n" +
     "            <md-input-container flex>\n" +
     "                <label>{{ metadata.number_displaced_source.label }}</label>\n" +
@@ -2242,13 +2346,19 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "                {{ metadata.rapid_access_possible.label }}\n" +
     "            </md-checkbox>\n" +
     "\n" +
-    "            <md-checkbox ng-model=\"worksheet.registration_required\"\n" +
+    "            <md-checkbox ng-model=\"worksheet.irc_country_program\"\n" +
+    "                         aria-label=\"{{ metadata.irc_country_program.label }}\"\n" +
+    "                         class=\"md-primary\">\n" +
+    "                {{ metadata.irc_country_program.label }}\n" +
+    "            </md-checkbox>\n" +
+    "\n" +
+    "            <md-checkbox ng-hide=\"worksheet.irc_country_program\" ng-model=\"worksheet.registration_required\"\n" +
     "                         aria-label=\"{{ metadata.registration_required.label }}\"\n" +
     "                         class=\"md-primary\">\n" +
     "                {{ metadata.registration_required.label }}\n" +
     "            </md-checkbox>\n" +
     "\n" +
-    "            <md-checkbox ng-model=\"worksheet.registration_possible\"\n" +
+    "            <md-checkbox ng-hide=\"worksheet.irc_country_program\"  ng-model=\"worksheet.registration_possible\"\n" +
     "                         aria-label=\"{{ metadata.registration_possible.label }}\"\n" +
     "                         class=\"md-primary\">\n" +
     "                {{ metadata.registration_possible.label }}\n" +
@@ -3051,6 +3161,23 @@ angular.module('app').run(['$templateCache', function($templateCache) {
   $templateCache.put('js/modules/map/tpl/map.html',
     "<div ng-controller=\"MapController\" ng-init=\"scale=true\">\n" +
     "    <leaflet class=\"fill-screen map\" defaults=\"defaults\" lf-center=\"center\" id=\"map\"></leaflet>\n" +
+    "    <div class=\"map-legend\" ng-class=\"{'map-legend-tall':  scale}\">\n" +
+    "        <div ng-if=\"scale\" class=\"color-line\">\n" +
+    "            <strong>Scale</strong>\n" +
+    "        </div>\n" +
+    "        <div ng-if=\"!scale\" class=\"color-line\">\n" +
+    "            <strong>Stance</strong>\n" +
+    "        </div>\n" +
+    "        <div ng-repeat=\"c in colors\" ng-if=\"$index > 0 && scale\" class=\"color-line\">\n" +
+    "            <span class=\"color-box\" ng-style=\"{'background-color': c}\"></span>\n" +
+    "            {{ $index }}\n" +
+    "        </div>\n" +
+    "        <div ng-repeat=\"c in stanceColors\" ng-if=\"($index > 0 && $index < 4) && !scale\" class=\"color-line\">\n" +
+    "            <span class=\"color-box\" ng-style=\"{'background-color': c}\"></span>\n" +
+    "            {{ stanceWording[$index] }}\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
     "    <div class=\"map-button-bar-right\">\n" +
     "        <div class=\"btn-group\">\n" +
     "            <button class=\"btn btn-info\" ng-click=\"scale = true\" ng-class=\"{'active': scale}\">Scale</button>\n" +

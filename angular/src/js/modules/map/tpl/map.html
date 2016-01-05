@@ -1,5 +1,22 @@
 <div ng-controller="MapController" ng-init="scale=true">
     <leaflet class="fill-screen map" defaults="defaults" lf-center="center" id="map"></leaflet>
+    <div class="map-legend" ng-class="{'map-legend-tall':  scale}">
+        <div ng-if="scale" class="color-line">
+            <strong>Scale</strong>
+        </div>
+        <div ng-if="!scale" class="color-line">
+            <strong>Stance</strong>
+        </div>
+        <div ng-repeat="c in colors" ng-if="$index > 0 && scale" class="color-line">
+            <span class="color-box" ng-style="{'background-color': c}"></span>
+            {{ $index }}
+        </div>
+        <div ng-repeat="c in stanceColors" ng-if="($index > 0 && $index < 4) && !scale" class="color-line">
+            <span class="color-box" ng-style="{'background-color': c}"></span>
+            {{ stanceWording[$index] }}
+        </div>
+    </div>
+
     <div class="map-button-bar-right">
         <div class="btn-group">
             <button class="btn btn-info" ng-click="scale = true" ng-class="{'active': scale}">Scale</button>

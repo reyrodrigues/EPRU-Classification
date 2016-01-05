@@ -1,5 +1,5 @@
 <div>
-<form name="form" onsubmit="return true;" ng-submit="save()" novalidate action="">
+<form name="form" ng-submit="save()">
 <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
 <md-toolbar md-scroll-shrink>
     <div class="md-toolbar-tools">Worksheet - {{ worksheet.title }}</div>
@@ -15,7 +15,11 @@
             <label>{{ metadata.title.label }}</label>
             <input name="title" ng-required="metadata.title.required" ng-model="worksheet.title"/>
 
-            <div class="hint">{{ metadata.title.help_text }}</div>
+            <div class="hint" ng-hide="form.title.$error.serverMessage">{{ metadata.title.help_text }}</div>
+
+            <div ng-messages="form.title.$error">
+                <div ng-each="form.title.$error.serverMessage">{{ form.title.$error.serverMessage}}</div>
+            </div>
         </md-input-container>
         <div layout>
             <md-input-container flex>
@@ -27,7 +31,12 @@
                     <md-option ng-value="country.id"
                                ng-repeat="country in countries">{{ country.name }}</md-option>
                 </md-select>
-                <div class="hint">{{ metadata.emergency_country.help_text }}</div>
+                <div class="hint"
+                     ng-hide="form.emergency_country.$error.serverMessage">{{ metadata.emergency_country.help_text }}</div>
+                <div ng-messages="form.emergency_country.$error">
+                    <div ng-each="form.emergency_country.$error.serverMessage">
+                        {{ form.emergency_country.$error.serverMessage}}</div>
+                </div>
             </md-input-container>
             <md-input-container flex>
                 <label>{{ metadata.origin_country.label }}</label>
@@ -38,13 +47,24 @@
                     <md-option ng-value="country.id"
                                ng-repeat="country in countries">{{ country.name }}</md-option>
                 </md-select>
-                <div class="hint">{{ metadata.origin_country.help_text }}</div>
+                <div class="hint"
+                     ng-hide="form.origin_country.$error.serverMessage">{{ metadata.origin_country.help_text }}</div>
+                <div ng-messages="form.origin_country.$error">
+                    <div ng-each="form.origin_country.$error.serverMessage">
+                        {{ form.origin_country.$error.serverMessage}}</div>
+                </div>
             </md-input-container>
         </div>
         <h5>{{ metadata.start.label }}:</h5>
 
         <div layout>
             <md-datepicker ng-model="worksheet.start" flex></md-datepicker>
+            <div class="hint"
+                 ng-hide="form.start.$error.serverMessage">{{ metadata.start.help_text }}</div>
+            <div ng-messages="form.start.$error">
+                <div ng-each="form.start.$error.serverMessage">
+                    {{ form.start.$error.serverMessage}}</div>
+            </div>
         </div>
         <div layout>
             <md-input-container>
@@ -60,7 +80,12 @@
             <label>{{ metadata.description.label }}</label>
             <textarea ng-model="worksheet.description" columns="1" md-maxlength="1000" rows="5"></textarea>
 
-            <div class="hint hidden-xs">{{ metadata.description.help_text }}</div>
+            <div class="hint hidden-xs"
+                 ng-hide="form.description.$error.serverMessage">{{ metadata.description.help_text }}</div>
+            <div ng-messages="form.description.$error">
+                <div ng-each="form.description.$error.serverMessage">
+                    {{ form.description.$error.serverMessage}}</div>
+            </div>
         </md-input-container>
     </md-card-content>
 </md-card>
@@ -76,6 +101,11 @@
                 <label>{{ metadata.number_deaths.label }}</label>
                 <input name="number_deaths" type="number" ng-min="0" ng-required="metadata.number_deaths.required"
                        ng-model="worksheet.number_deaths"/>
+
+                <div ng-messages="form.number_deaths.$error">
+                    <div ng-each="form.number_deaths.$error.serverMessage">
+                        {{ form.number_deaths.$error.serverMessage}}</div>
+                </div>
             </md-input-container>
             <md-input-container flex>
                 <label>{{ metadata.number_deaths_source.label }}</label>
@@ -89,6 +119,11 @@
                 <label>{{ metadata.number_injuries.label }}</label>
                 <input name="number_injuries" type="number" ng-min="0" ng-required="metadata.number_injuries.required"
                        ng-model="worksheet.number_injuries"/>
+
+                <div ng-messages="form.number_injuries.$error">
+                    <div ng-each="form.number_injuries.$error.serverMessage">
+                        {{ form.number_deaths.$error.serverMessage}}</div>
+                </div>
             </md-input-container>
             <md-input-container flex>
                 <label>{{ metadata.number_injuries_source.label }}</label>
@@ -102,6 +137,11 @@
                 <label>{{ metadata.number_affected.label }}</label>
                 <input name="number_affected" type="number" ng-min="0" ng-required="metadata.number_affected.required"
                        ng-model="worksheet.number_affected"/>
+
+                <div ng-messages="form.number_affected.$error">
+                    <div ng-each="form.number_affected.$error.serverMessage">
+                        {{ form.number_affected.$error.serverMessage}}</div>
+                </div>
             </md-input-container>
             <md-input-container flex>
                 <label>{{ metadata.number_affected_source.label }}</label>
@@ -115,6 +155,11 @@
                 <label>{{ metadata.number_displaced.label }}</label>
                 <input name="number_displaced" type="number" ng-min="0" ng-required="metadata.number_displaced.required"
                        ng-model="worksheet.number_displaced"/>
+
+                <div ng-messages="form.number_displaced.$error">
+                    <div ng-each="form.number_displaced.$error.serverMessage">
+                        {{ form.number_displaced.$error.serverMessage}}</div>
+                </div>
             </md-input-container>
             <md-input-container flex>
                 <label>{{ metadata.number_displaced_source.label }}</label>
@@ -151,13 +196,19 @@
                 {{ metadata.rapid_access_possible.label }}
             </md-checkbox>
 
-            <md-checkbox ng-model="worksheet.registration_required"
+            <md-checkbox ng-model="worksheet.irc_country_program"
+                         aria-label="{{ metadata.irc_country_program.label }}"
+                         class="md-primary">
+                {{ metadata.irc_country_program.label }}
+            </md-checkbox>
+
+            <md-checkbox ng-hide="worksheet.irc_country_program" ng-model="worksheet.registration_required"
                          aria-label="{{ metadata.registration_required.label }}"
                          class="md-primary">
                 {{ metadata.registration_required.label }}
             </md-checkbox>
 
-            <md-checkbox ng-model="worksheet.registration_possible"
+            <md-checkbox ng-hide="worksheet.irc_country_program"  ng-model="worksheet.registration_possible"
                          aria-label="{{ metadata.registration_possible.label }}"
                          class="md-primary">
                 {{ metadata.registration_possible.label }}

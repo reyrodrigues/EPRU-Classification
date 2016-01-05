@@ -4,7 +4,7 @@
 
 angular.module('app')
     .controller('AppCtrl',
-    function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $state, $q) {
+    function ($scope, $rootScope, $localStorage, $window, $mdSidenav, $state, User) {
         // add 'ie' classes to html
         var isIE = !!navigator.userAgent.match(/MSIE/i);
         isIE && angular.element($window.document.body).addClass('ie');
@@ -27,17 +27,15 @@ angular.module('app')
             }
         };
 
-        if ($localStorage.currentUser) {
-            $rootScope.currentUser = $localStorage.currentUser;
-            $rootScope.isReviewer =  $rootScope.currentUser.groups.filter(function(g){
+        User.get({id: 'me'}).$promise.then(function (currentUser) {
+            $rootScope.currentUser = currentUser.toJSON();
+            $rootScope.isReviewer = $rootScope.currentUser.groups.filter(function (g) {
                 return g.name == 'Reviewer'
             }).length > 0;
-            $rootScope.isClassifier =  $rootScope.currentUser.groups.filter(function(g){
+            $rootScope.isClassifier = $rootScope.currentUser.groups.filter(function (g) {
                 return g.name == 'Classifier'
             }).length > 0;
-        } else {
-            $state.go('login');
-        }
+        });
 
         function isSmartDevice($window) {
             // Adapted from http://www.detectmobilebrowsers.com

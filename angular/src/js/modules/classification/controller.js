@@ -76,83 +76,17 @@ angular
                 .then(function (worksheets) {
                     $scope.gridOptions.totalItems = worksheets.count;
 
-                    $scope.gridOptions.data = worksheets.results;
+                    $scope.gridOptions.data = worksheets.results.map(function(r){
+                        r.emergency_country = countryList[r.emergency_country];
+                        r.origin_country = countryList[r.origin_country];
+                        r.start = moment(r.start).format('L');
+
+                        return r;
+                    });
                     console.log(worksheets.count, $scope.gridOptions.totalItems, $scope.gridOptions);
                 });
         }
     })
-    .controller('EditWorksheetController', function ($scope, $state, $http, Worksheet, $mdToast, $window) {
-        $scope.worksheet = Worksheet.get($state.params);
-        $scope.metadata = Worksheet.metadata();
-
-        $scope.countries = Object.keys(countryList).map(function (k) {
-            return {
-                id: k,
-                name: countryList[k]
-            }
-        }).sort(function (a, b) {
-            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
-        });
-
-
-        $scope.save = function () {
-
-
-            var worksheet = $scope.worksheet.toJSON();
-            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
-
-            var promise = Worksheet.save(worksheet).$promise;
-
-            promise
-                .then(function (worksheet) {
-                    $window.scrollTo(0, 0);
-                    $mdToast.show(
-                        $mdToast.simple()
-                            .textContent('Record Saved!')
-                            .position('Top right')
-                            .hideDelay(3000)
-                    );
-                    $scope.worksheet = worksheet;
-                }).catch(function () {
-                    console.log('fail', arguments);
-                });
-        };
-    })
-    .controller('CreateWorksheetController', function ($scope, $state, $http, Worksheet, $mdToast, $window) {
-        $scope.worksheet = new Worksheet({
-            number_deaths: 0,
-            number_injuries: 0,
-            number_affected: 0,
-            number_displaced: 0
-        });
-        $scope.metadata = Worksheet.metadata();
-
-        $scope.countries = Object.keys(countryList).map(function (k) {
-            return {
-                id: k,
-                name: countryList[k]
-            }
-        }).sort(function (a, b) {
-            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
-        });
-
-
-        $scope.save = function () {
-            var worksheet = $scope.worksheet.toJSON();
-            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
-
-            var promise = Worksheet.create(worksheet).$promise;
-
-            promise
-                .then(function (worksheet) {
-                    $state.go('^.^.scorecards.edit', {id: worksheet.scorecard.id });
-                }).catch(function () {
-                    console.log('fail', arguments);
-                });
-        };
-    })
-
-
     .controller('ListScorecardController', function ($scope, Scorecard, $mdDialog) {
         $scope.gridOptions = {
             paginationPageSizes: [5, 25, 50, 75],
@@ -162,10 +96,10 @@ angular
             customOptions: {limit: 25, offset: 0},
             columnDefs: [
                 { 'name': 'id' },
-                { 'name': 'worksheet.title', enableSorting: false},
-                { 'name': 'worksheet.emergency_country', enableSorting: false},
-                { 'name': 'worksheet.origin_country', enableSorting: false},
-                { 'name': 'worksheet.start', type: 'date', enableSorting: false},
+                { 'field': 'worksheet.title', name: 'Emergency Name', enableSorting: false},
+                { 'field': 'worksheet.emergency_country', name: 'Emergency Country', enableSorting: false},
+                { 'field': 'worksheet.origin_country', name: 'Country of Origin', enableSorting: false},
+                { 'field': 'worksheet.start', name: 'Start of Crisis', type: 'date', enableSorting: false},
                 {
                     'name': 'actions',
                     cellTemplate: '<div class="ui-grid-cell-contents" title="TOOLTIP">' +
@@ -223,12 +157,107 @@ angular
                 .then(function (result) {
                     $scope.gridOptions.totalItems = result.count;
 
-                    $scope.gridOptions.data = result.results;
+                    $scope.gridOptions.data = result.results.map(function(r){
+                        r.worksheet.emergency_country = countryList[r.worksheet.emergency_country];
+                        r.worksheet.origin_country = countryList[r.worksheet.origin_country];
+                        r.worksheet.start = moment(r.worksheet.start).format('L');
+
+                        return r;
+                    });
                     console.log(result.count, $scope.gridOptions.totalItems, $scope.gridOptions);
                 });
         }
     })
-    .controller('EditScorecardController', function ($scope, $state, $http, Worksheet, Scorecard, $timeout, $mdToast, $window, $q, $mdDialog) {
+
+    .controller('EditWorksheetController', function ($scope, $state, $http, Worksheet, $mdToast, $window, $parse) {
+        $scope.worksheet = Worksheet.get($state.params);
+        $scope.metadata = Worksheet.metadata();
+
+        $scope.countries = Object.keys(countryList).map(function (k) {
+            return {
+                id: k,
+                name: countryList[k]
+            }
+        }).sort(function (a, b) {
+            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
+        });
+
+
+        $scope.save = function () {
+
+            var worksheet = $scope.worksheet.toJSON();
+            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
+            var promise = Worksheet.save(worksheet).$promise;
+
+            promise
+                .then(function (worksheet) {
+                    $window.scrollTo(0, 0);
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('Record Saved!')
+                            .position('Top right')
+                            .hideDelay(3000)
+                    );
+                    $scope.worksheet = worksheet;
+                }).catch(function (resp) {
+                    var serverResponse = resp.data;
+
+                    for (var fieldName in serverResponse) {
+                        var message = serverResponse[fieldName];
+                        var serverMessage = $parse('form.' + fieldName + '.$error.serverMessage');
+
+                        $scope.form.$setValidity(fieldName, false, $scope.form);
+                        serverMessage.assign($scope, serverResponse[fieldName]);
+                    }
+                });
+        };
+    })
+    .controller('CreateWorksheetController', function ($scope, $state, $http, Worksheet, $mdToast, $window, $parse) {
+        $scope.worksheet = new Worksheet({
+            number_deaths: 0,
+            number_injuries: 0,
+            number_affected: 0,
+            number_displaced: 0
+        });
+        $scope.metadata = Worksheet.metadata();
+
+        $scope.countries = Object.keys(countryList).map(function (k) {
+            return {
+                id: k,
+                name: countryList[k]
+            }
+        }).sort(function (a, b) {
+            return a.name > b.name ? 1 : (a.name == b.name ? 0 : -1);
+        });
+
+
+        $scope.save = function () {
+            var worksheet = $scope.worksheet.toJSON();
+            worksheet.start = moment($scope.worksheet.start).toJSON().split('T')[0];
+
+            var promise = Worksheet.create(worksheet).$promise;
+
+            promise
+                .then(function (worksheet) {
+                    $state.go('^.^.scorecards.edit', {id: worksheet.scorecard.id });
+                }).catch(function (resp) {
+                    $window.scrollTo(0, 0);
+
+                    var serverResponse = resp.data;
+
+                    for (var fieldName in serverResponse) {
+                        var message = serverResponse[fieldName].join('\n');
+                        var serverMessage = $parse('form.' + fieldName + '.$error.serverMessage');
+
+
+                        $scope.form.$setValidity(fieldName, false, $scope.form);
+                        serverMessage.assign($scope, message);
+                    }
+                });
+        };
+    })
+    .controller('EditScorecardController', function ($scope, $state, $http, Worksheet, Scorecard, $parse, $timeout, $mdToast, $window, $q, $mdDialog) {
         $scope.scorecard = Scorecard.get($state.params);
         $scope.scorecard.$promise.then(function (scorecard) {
             $scope.worksheet = scorecard.worksheet;
@@ -280,8 +309,17 @@ angular
                             .position('Top right')
                             .hideDelay(3000)
                     );
-                }).catch(function () {
-                    console.log('fail', arguments);
+                }).catch(function (resp) {
+                    var serverResponse = resp.data;
+
+                    for (var fieldName in serverResponse) {
+                        var message = serverResponse[fieldName].join('\n');
+                        var serverMessage = $parse('form.' + fieldName + '.$error.serverMessage');
+
+
+                        $scope.form.$setValidity(fieldName, false, $scope.form);
+                        serverMessage.assign($scope, message);
+                    }
                 });
         };
     })

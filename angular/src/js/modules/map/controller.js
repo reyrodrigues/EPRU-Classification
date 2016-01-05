@@ -1,6 +1,33 @@
 /**
  * Created by reyrodrigues on 12/25/15.
  */
+
+var colors = [
+    "#FFFF66",
+    "#F2E65C",
+    "#E6CC52",
+    "#D9B247",
+    "#CC993D",
+    "#C08033",
+    "#B36629",
+    "#A64D1F",
+    "#993314",
+    "#8D190A",
+    "#800000"
+];
+var stanceColors = [
+    "#FFFF66",
+    "#F2E65C",
+    "#C08033",
+    "#8D190A",
+];
+var stanceWording = [
+    "#FFFF66",
+    "A",
+    "B",
+    "C",
+];
+
 angular
     .module('app')
     .controller('MapController', function MapController($scope, $http, leafletData, OAuth, Scorecard, $q, $mdDialog) {
@@ -12,7 +39,9 @@ angular
                 position: 'topright',
                 colors: [ '#ff0000', '#28c9ff', '#0000ff', '#ecf386' ],
                 labels: [ 'National Cycle Route', 'Regional Cycle Route', 'Local Cycle Network', 'Cycleway' ]
-            }
+            },
+            minZoom: 3,
+            worldCopyJump: true
         };
 
         $scope.center = {
@@ -20,6 +49,10 @@ angular
             lng: 0.0,
             zoom: 3
         };
+
+        $scope.colors = colors;
+        $scope.stanceColors = stanceColors;
+        $scope.stanceWording = stanceWording;
 
         var countryMap = isoCountriesCodes.reduce(function (obj, b) {
             obj[b[0]] = b[1];
@@ -133,21 +166,11 @@ angular
             }
 
             function getColor(d) {
-                var colors = [
-                    "#FFFF66",
-                    "#F2E65C",
-                    "#E6CC52",
-                    "#D9B247",
-                    "#CC993D",
-                    "#C08033",
-                    "#B36629",
-                    "#A64D1F",
-                    "#993314",
-                    "#8D190A",
-                    "#800000"
-                ];
-
-                return  d > 0 ? colors[d] : '#c3c3c3';
+                if (scale) {
+                    return  d > 0 ? colors[d] : '#c3c3c3';
+                } else {
+                    return  d > 0 ? stanceColors[d] : '#c3c3c3';
+                }
             }
 
             function style(feature) {

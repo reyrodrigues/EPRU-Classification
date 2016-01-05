@@ -249,6 +249,11 @@ class Worksheet(models.Model, AdminUrlMixin, WorksheetPropertiesMixin):
         verbose_name=_('The IRC expects to be able to access the affected population within one week.'),
         help_text=_(''),
     )
+    irc_country_program = models.BooleanField(
+        default=False,
+        verbose_name=_('The IRC already has a country program in this country.'),
+        help_text=_(''),
+    )
     registration_required = models.BooleanField(
         default=False,
         verbose_name=_('Registration is required.'),
@@ -296,6 +301,9 @@ class Worksheet(models.Model, AdminUrlMixin, WorksheetPropertiesMixin):
         self.is_locked = True
         self.unlocked_by = None
         self.populate_stats()
+        if self.irc_country_program:
+            self.registration_required = True
+            self.registration_possible = True
 
         super(Worksheet, self).save(force_insert, force_update, using, update_fields)
 
