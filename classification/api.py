@@ -7,6 +7,9 @@ from rest_framework import viewsets, serializers, decorators
 from mapping import models
 from django.contrib.auth import get_user_model, models as auth_models
 from rest_framework.response import Response
+from django.db.models import Q
+
+PRIVILEGED_FILTER = Q(name='Classifier') | Q(name='Reviewer')
 
 
 class DateTimeToDateField(serializers.DateField):
@@ -56,22 +59,24 @@ class WorksheetViewSet(viewsets.ModelViewSet):
     ordering_fields = '__all__'
 
     def get_queryset(self):
+
         if self.request.user:
-            if not any(self.request.user.groups.filter(name='Classifier')) or not self.request.user.is_superuser:
+            if any(self.request.user.groups.filter(PRIVILEGED_FILTER)) or self.request.user.is_superuser:
+                return self.queryset
+            else:
                 return self.queryset.filter(generated_by=self.request.user)
-            return self.queryset
         else:
             return self.queryset.empty()
 
     def perform_create(self, serializer):
         user = self.request.user
-        serializer.validated_data['is_official'] = any(user.groups.filter(name='Classifier'))
+        serializer.validated_data['is_official'] = any(user.groups.filter(PRIVILEGED_FILTER)) or user.is_superuser
         serializer.validated_data['generated_by'] = user
         super(WorksheetViewSet, self).perform_create(serializer)
 
     def perform_update(self, serializer):
         user = self.request.user
-        serializer.validated_data['is_official'] = any(user.groups.filter(name='Classifier'))
+        serializer.validated_data['is_official'] = any(user.groups.filter(PRIVILEGED_FILTER)) or user.is_superuser
         super(WorksheetViewSet, self).perform_update(serializer)
 
 

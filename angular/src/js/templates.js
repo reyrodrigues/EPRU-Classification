@@ -255,7 +255,7 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "<input type=\"submit\" style=\"position: absolute; left: -9999px; width: 1px; height: 1px;\"/>\n" +
     "\n" +
     "<md-card>\n" +
-    "    <md-card-content>\n" +
+    "    <md-card-content layout-wrap layout>\n" +
     "        <div layout=\"column\" flex=\"50\" flex-xs=\"100\">\n" +
     "            <md-input-container flex>\n" +
     "                <label>{{ metadata.emergency_classification_rank.label }}</label>\n" +
@@ -1452,11 +1452,11 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "\n" +
     "                    <md-content layout=\"column\">\n" +
     "                        <md-input-container flex>\n" +
-    "                            <label>User name</label>\n" +
+    "                            <h4>User name</h4>\n" +
     "                            <input ng-model=\"user.username\">\n" +
     "                        </md-input-container>\n" +
     "                        <md-input-container flex>\n" +
-    "                            <label>Password</label>\n" +
+    "                            <h4>Password</h4>\n" +
     "                            <input ng-model=\"user.password\" type=\"password\">\n" +
     "                        </md-input-container>\n" +
     "                        <md-input-container layout-align=\"center center\">\n" +

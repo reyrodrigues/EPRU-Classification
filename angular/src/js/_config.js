@@ -93,7 +93,8 @@ var app =
                     return $state.go('login');
                 });
             })
-
+            .config(function ($mdThemingProvider) {
+            })
     ;
 
 
