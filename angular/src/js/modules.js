@@ -3191,11 +3191,11 @@ angular.module('app').run(['$templateCache', function($templateCache) {
     "    </div>\n" +
     "    <div class=\"map-button-bar-left hide-xs\">\n" +
     "        <div class=\"btn-group\">\n" +
-    "            <button class=\"btn btn-default\">Report</button>\n" +
+    "            <button class=\"btn btn-default\" ng-show=\"isClassifier || isReviewer\" ng-click=\"exportReport()\">Report</button>\n" +
     "            <a class=\"btn btn-default\" ui-sref=\"app.worksheets.create\">Classify an emergency</a>\n" +
     "        </div>\n" +
     "\n" +
-    "        <button class=\"btn btn-default\">More about classification</button>\n" +
+    "        <button class=\"btn btn-default\" ng-hide=\"true\">More about classification</button>\n" +
     "\n" +
     "    </div>\n" +
     "</div>"

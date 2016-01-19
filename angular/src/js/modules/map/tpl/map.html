@@ -25,11 +25,11 @@
     </div>
     <div class="map-button-bar-left hide-xs">
         <div class="btn-group">
-            <button class="btn btn-default">Report</button>
+            <button class="btn btn-default" ng-show="isClassifier || isReviewer" ng-click="exportReport()">Report</button>
             <a class="btn btn-default" ui-sref="app.worksheets.create">Classify an emergency</a>
         </div>
 
-        <button class="btn btn-default">More about classification</button>
+        <button class="btn btn-default" ng-hide="true">More about classification</button>
 
     </div>
 </div>

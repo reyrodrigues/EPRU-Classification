@@ -8,5 +8,6 @@ from . import api
 
 urlpatterns = [
     url(r'^api/', include(api.router.urls)),
+    url(r'^report/$', views.report),
     url(r'^$', views.index),
 ]
